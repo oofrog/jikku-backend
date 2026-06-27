@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public class VisitorDDRepository {
@@ -42,5 +44,12 @@ public class VisitorDDRepository {
             ps.setInt(4, Integer.parseInt(item.touDivCd()));                    // 관광객구분
             ps.setBigDecimal(5, new java.math.BigDecimal(item.touNum()));       // "103876.5" → NUMERIC
         });
+    }
+
+    // visitor_daily 에 이미 저장된 '날짜들'을 Set 으로 읽는다. (이어받기용)
+    public Set<LocalDate> findSavedDates() {
+        List<LocalDate> dates = jdbcTemplate.queryForList(
+                "SELECT DISTINCT base_ymd FROM visitor_daily", LocalDate.class);
+        return new HashSet<>(dates);
     }
 }

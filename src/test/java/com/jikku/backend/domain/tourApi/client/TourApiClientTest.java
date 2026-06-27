@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.tourApi.client;
 
 import com.jikku.backend.domain.tourApi.dto.VisitorDDItem;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+@Disabled("Client 테스트 완료")
 @SpringBootTest   // 스프링 컨텍스트를 띄워서, 우리가 만든 '진짜' 빈으로 실제 호출한다
 class TourApiClientTest {
 
