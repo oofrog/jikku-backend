@@ -37,3 +37,7 @@ out/
 .vscode/
 
 .env
+
+### Claude Code ###
+CLAUDE.md
+CLAUDE.local.md
