@@ -26,16 +26,15 @@
 
 ### 브랜치 이름: `종류/내용`
 
-| 종류 | 용도 | 예시 |
-|---|---|---|
-| `feature` | 새 기능 | `feature/map-fill` |
-| `fix` | 버그 수정 | `fix/login-error` |
-| `refactor` | 리팩터링 | `refactor/photo-store` |
-| `docs` | 문서 | `docs/readme` |
-| `chore` | 설정·잡일 | `chore/eslint-config` |
+| 종류         | 용도 |
+|------------|---|
+| `feat`     | 새 기능 |
+| `fix`      | 버그 수정 |
+| `refactor` | 리팩터링 |
+| `docs`     | 문서 |
+| `chore`    | 설정·잡일 |
 
-- 내용은 영어 소문자 + 하이픈(`kebab-case`)으로 적습니다.
-- 이슈 번호를 무조건 붙입니다. 예: `feature/#12-map-fill` (이슈 `#12`)
+- 내용엔 이슈 번호만 무조건 붙입니다. 예: `feat/#12` (이슈 `#12`)
 
 ## 커밋 메시지: `종류: 내용`
 
