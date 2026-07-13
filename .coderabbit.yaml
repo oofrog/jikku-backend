@@ -1,0 +1,47 @@
+# CodeRabbit 설정 — Ji-kku 백엔드
+# 리뷰 언어/자동리뷰 + CLAUDE.md 규칙을 path_instructions로 심어 우리 컨벤션대로 리뷰시킨다.
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: "ko-KR"
+
+reviews:
+  profile: "chill"
+  review_status: true
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+
+  # CLAUDE.md 핵심 규칙을 경로별 리뷰 지침으로 주입 (봇이 우리 컨벤션 위반을 잡게)
+  path_instructions:
+    - path: "src/main/java/**/*.java"
+      instructions: |
+        아래 규칙 위반을 우선적으로 지적하라.
+        - 레이어링: Controller → Service → Repository 단방향. Controller에 비즈니스 로직이 있으면 지적.
+        - 엔티티를 컨트롤러에서 직접 반환/노출 금지. 요청·응답은 항상 DTO(XxxRequest/XxxResponse)로 감쌀 것.
+        - 키/시크릿/토큰(TourAPI·카카오·JWT·DB) 하드코딩 금지. 반드시 환경변수/application-*.yml 경유.
+        - 응답은 공통 래퍼 ApiResponse<T> 사용. 에러는 ErrorCode enum, 전역 예외는 @RestControllerAdvice 하나로.
+        - 매직값 금지 → enum·상수·설정으로. (단 ApiResponse 성공 code/message "OK"/"요청이 성공했습니다."는 하드코딩 리터럴 유지가 의도된 컨벤션이니 지적하지 말 것)
+        - DTO는 기본적으로 @Builder + record + 정적 팩토리로 작성한다(우리 팀 컨벤션). record가 지원 못 하는 @Builder.Default 등 빌더 기능이 필요할 때만 @Getter @Builder 클래스로 내려간다. record로 충분한데 @Getter @Builder 클래스로 짠 DTO는 record로 바꾸자고 제안하라.
+        - 요청 DTO는 @Valid + Bean Validation으로 경계에서 검증.
+        - 주석은 "왜"만 간결히. 코드를 그대로 옮긴 설명이나 프레임워크 동작 설명 주석은 지적.
+    - path: "src/main/java/**/tourApi/**"
+      instructions: |
+        TourAPI 도메인 특례를 인지하고 리뷰하라.
+        - 이 도메인은 의도적으로 JPA 대신 JdbcTemplate + 직접 SQL(ON CONFLICT upsert, batchUpdate)을 쓴다. JPA로 바꾸라고 하지 말 것.
+        - 런타임에 사용자 요청마다 TourAPI를 직접 호출하면 안 된다(사전 적재 + DB 서빙). 위반 시 지적.
+        - 집중률 API(tatsCnctrRatedList)·locationBasedList·gallerySearchList1은 사용 금지. 이 호출이 보이면 지적.
+        - areaCode 등 미검증 코드값을 추측으로 상수화하면 지적.
+    - path: "**/*.yml"
+      instructions: |
+        application-*.yml 등에 실제 키/시크릿/DB 비밀번호가 하드코딩되어 있으면 강하게 지적하라.
+        환경변수 플레이스홀더(${...}) 사용이 원칙이다.
+
+chat:
+  auto_reply: true
