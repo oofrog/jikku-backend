@@ -25,28 +25,24 @@ public class ApiResponse<T> {
         this.result = result;
     }
 
-    /** JSON 키를 isSuccess 로 고정하기 위해 getter 를 직접 정의한다. */
+    // Lombok @Getter는 boolean 필드에 isSuccess()가 아닌 getSuccess()류를 만들 수 있어, JSON 키 고정을 위해 직접 정의
     @JsonProperty("isSuccess")
     public boolean isSuccess() {
         return isSuccess;
     }
 
-    // 성공 (기본 코드)
     public static <T> ApiResponse<T> onSuccess(T result) {
         return new ApiResponse<>(true, "OK", "요청이 성공했습니다.", result);
     }
 
-    // 성공 (result 없음)
     public static <T> ApiResponse<T> onSuccess() {
         return onSuccess(null);
     }
 
-    // 실패 (전역 예외 핸들러에서 사용)
     public static ApiResponse<Void> onFailure(BaseErrorCode errorCode) {
         return new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null);
     }
 
-    // 실패 (검증 메시지 등 커스텀 메시지를 message 에 담을 때)
     public static ApiResponse<Void> onFailure(BaseErrorCode errorCode, String message) {
         return new ApiResponse<>(false, errorCode.getCode(), message, null);
     }

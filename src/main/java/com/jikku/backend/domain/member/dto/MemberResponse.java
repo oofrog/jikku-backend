@@ -6,8 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * 회원 정보 응답 DTO. (엔티티 직접 노출 금지 — CLAUDE.md §3)
- * 내부 식별자인 socialUid는 노출하지 않는다.
+ * 회원 정보 응답 DTO. 내부 식별자인 socialUid는 노출하지 않는다.
  */
 @Getter
 @Builder

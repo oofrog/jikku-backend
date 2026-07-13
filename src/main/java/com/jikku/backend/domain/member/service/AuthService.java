@@ -11,9 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 인증 서비스.
- * 지금은 카카오 없이 고정 테스트 회원으로 JWT를 발급하는 dev-login만 제공한다.
- * 이후 카카오 로그인이 들어오면 "카카오 프로필 → 회원 upsert → 발급" 구조로 이 자리를 대체한다. (CLAUDE.md §5.1)
+ * 인증 서비스. 지금은 카카오 없이 고정 테스트 회원으로 JWT를 발급하는 dev-login만 제공한다.
  */
 @Slf4j
 @Service

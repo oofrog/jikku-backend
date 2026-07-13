@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-// social_uid는 소셜 종류(KAKAO 등) 안에서 유일 → (social_login, social_uid) 복합 유니크로 upsert 기준 보장 (CLAUDE.md §5.1)
+// social_uid는 소셜 종류 안에서만 유일하므로 (social_login, social_uid) 복합 유니크로 upsert 기준을 보장
 @Table(name = "member", uniqueConstraints = {
         @UniqueConstraint(name = "uk_member_social", columnNames = {"social_login", "social_uid"})
 })

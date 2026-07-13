@@ -10,7 +10,6 @@ import java.util.List;
  */
 public interface EmdRepository extends JpaRepository<Emd, Long> {
 
-    // 시군구별 읍면동 목록 조회.
-    // 연관관계 sigungu의 PK(sigunguCd)로 필터 → 파생 쿼리명 findBySigungu_SigunguCd
+    // 시군구별 읍면동 목록 조회
     List<Emd> findBySigungu_SigunguCd(Integer sigunguCd);
 }

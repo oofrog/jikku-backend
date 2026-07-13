@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 인증 API.
- * /auth/** 는 SecurityConfig 화이트리스트라 토큰 없이 접근 가능하다.
+ * 인증 API. /auth/**는 SecurityConfig 화이트리스트라 토큰 없이 접근 가능하다.
  */
 @Tag(name = "Auth", description = "인증 API")
 @RestController
@@ -22,7 +21,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // 개발용 로그인: 카카오 없이 고정 테스트 회원의 JWT를 발급받아 Swagger에서 인증 테스트에 쓴다. (CLAUDE.md §5.1)
     @Operation(summary = "개발용 로그인", description = "카카오 없이 고정 테스트 회원의 Access 토큰을 발급한다. (개발 전용)")
     @PostMapping("/dev-login")
     public ApiResponse<TokenResponse> devLogin() {

@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 인증은 됐지만 권한이 없는 요청에 403 응답을 만든다.
- * 스프링 기본 응답 대신 앱 공통 포맷(ApiResponse)으로 통일하기 위해 직접 구현한다. (CLAUDE.md §3)
+ * 인증은 됐지만 권한이 없는 요청의 403 응답을 공통 ApiResponse 포맷으로 내린다.
  */
 @Component
 @RequiredArgsConstructor

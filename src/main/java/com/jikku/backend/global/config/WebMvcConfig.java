@@ -6,9 +6,9 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * 모든 비즈니스 REST API에 /api/v1 프리픽스를 붙인다. (API 버전 관리)
- * forBasePackage로 우리 도메인 컨트롤러에만 적용하는 이유: springdoc(/v3/api-docs, /swagger-ui)까지
- * 프리픽스되면 Swagger 문서가 깨지므로, 그쪽(org.springdoc.*)은 건드리지 않기 위해서다.
+ * 도메인 REST API에만 /api/v1 프리픽스를 붙인다.
+ * forBasePackage로 우리 컨트롤러에만 한정하는 이유: springdoc(/v3/api-docs, /swagger-ui)까지
+ * 프리픽스되면 Swagger 문서가 깨지기 때문이다.
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
