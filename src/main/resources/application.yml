@@ -1,9 +1,20 @@
 spring:
+  application:
+    name: jikku-backend
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update          # 엔티티에서 스키마 자동 생성, 기존 데이터는 안 건드림 (CLAUDE.md §2)
+    show-sql: true              # 실행 SQL 콘솔 출력 (개발 편의)
+    properties:
+      hibernate:
+        format_sql: true        # SQL 보기 좋게 포맷팅
 
 # TourAPI
 tour-api:
