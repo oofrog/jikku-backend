@@ -1,4 +1,4 @@
-# 협업 규칙 (Ji-kku)
+# 협업 규칙 (Ji-kku) 123
 
 > 이 문서는 frontend / backend 두 레포에 동일하게 넣어두세요.
 
