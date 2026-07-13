@@ -29,12 +29,12 @@ public class SecurityConfig {
 
     // 인증 없이 항상 허용할 경로 (Phase 2에서 나머지를 막아도 열려 있어야 하는 것들)
     private final String[] allowUris = {
-            // Swagger
+            // Swagger (프리픽스 대상 아님 → 경로 그대로)
             "/swagger-ui/**",
             "/v3/api-docs/**",
 
-            // 로그인 (카카오 code 교환 등)
-            "/auth/**"
+            // 로그인 (도메인 컨트롤러라 /api/v1 프리픽스가 붙음)
+            "/api/v1/auth/**"
     };
 
     @Bean
