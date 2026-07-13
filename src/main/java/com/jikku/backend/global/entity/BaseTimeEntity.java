@@ -1,4 +1,4 @@
-package com.jikku.backend.global.common;
+package com.jikku.backend.global.entity;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

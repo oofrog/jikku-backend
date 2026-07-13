@@ -1,4 +1,35 @@
 package com.jikku.backend.domain.member.entity;
 
-public class Member {
+import com.jikku.backend.domain.member.enums.SocialLogin;
+import com.jikku.backend.global.entity.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+// social_uid는 소셜 종류 안에서만 유일하므로 (social_login, social_uid) 복합 유니크로 upsert 기준을 보장
+@Table(name = "member", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_member_social", columnNames = {"social_login", "social_uid"})
+})
+public class Member extends BaseTimeEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long memberId;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SocialLogin socialLogin;
+
+    @Column(nullable = false)
+    private String socialUid;
+
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String email;
 }
