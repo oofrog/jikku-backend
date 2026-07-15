@@ -2,7 +2,7 @@ package com.jikku.backend.domain.map.dto;
 
 public record FillMapResponse(
   Long fillMapId,
-  Long sigunguId,
+  Long sigunguCd,
   Long emdId,
   String mapType,
   String fillType,

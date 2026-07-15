@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record FillMapRequest(
   @Schema(example = "11010")
-  Long sigunguId,
+  Integer sigunguCd,
 
   @Schema(example = "11010101", nullable = true)
   Long emdId,

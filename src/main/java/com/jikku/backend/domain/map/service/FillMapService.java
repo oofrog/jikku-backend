@@ -8,12 +8,17 @@ import com.jikku.backend.domain.map.repository.FillMapRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.jikku.backend.domain.region.entity.Sigungu;
+import com.jikku.backend.domain.region.repository.SigunguRepository;
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
+import com.jikku.backend.global.exception.BaseException;
 
 @Service
 @RequiredArgsConstructor
 public class FillMapService {
 
   private final FillMapRepository fillMapRepository;
+  private final SigunguRepository sigunguRepository;
 
   // 시군구 색칠 지도 조회
   public List<FillMapResponse> getSigunguFillMap(Long memberId) {
@@ -32,8 +37,11 @@ public class FillMapService {
   }
 
   // 읍면동 색칠 지도 조회
-  public List<FillMapResponse> getEmdFillMap(Long memberId, Long sigunguId) {
-    return fillMapRepository.findByMemberIdAndMapTypeAndSigunguId(memberId, MapType.EMD, sigunguId)
+  public List<FillMapResponse> getEmdFillMap(Long memberId, Integer sigunguCd) {
+    Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
+      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
+
+    return fillMapRepository.findByMemberIdAndMapTypeAndSigunguId(memberId, MapType.EMD, Long.valueOf(sigungu.getSigunguCd()))
       .stream()
       .map(this::toResponse)
       .toList();
@@ -45,7 +53,7 @@ public class FillMapService {
 
     FillMap fillMap = FillMap.builder()
       .memberId(memberId)
-      .sigunguId(request.sigunguId())
+      .sigunguId(Long.valueOf(request.sigunguCd()))
       .emdId(request.emdId())
       .mapType(request.mapType())
       .fillType(request.fillType())
@@ -61,14 +69,14 @@ public class FillMapService {
     validateRequest(request);
 
     FillMap fillMap = fillMapRepository.findById(fillMapId)
-      .orElseThrow(() -> new IllegalArgumentException("해당 지도 채우기 데이터가 존재하지 않습니다."));
+      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "해당 지도 채우기 데이터가 존재하지 않습니다."));
 
     if (!fillMap.getMemberId().equals(memberId)) {
-      throw new IllegalArgumentException("해당 지도 채우기 데이터를 수정할 권한이 없습니다.");
+      throw new BaseException(GeneralErrorCode.ACCESS_DENIED, "해당 지도 채우기 데이터를 수정할 권한이 없습니다.");
     }
 
     fillMap.updateFillMap(
-      request.sigunguId(),
+      Long.valueOf(request.sigunguCd()),
       request.emdId(),
       request.mapType(),
       request.fillType(),
@@ -81,17 +89,22 @@ public class FillMapService {
   }
 
   private void validateRequest(FillMapRequest request) {
+
     MapType mapType = request.mapType();
 
+    if (mapType == null) {
+      throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "mapType은 필수입니다.");
+    }
+
     if (mapType == MapType.SIGUNGU) {
-      if (request.sigunguId() == null || request.emdId() != null) {
-        throw new IllegalArgumentException("SIGUNGU 타입의 지역 정보가 올바르지 않습니다.");
+      if (request.sigunguCd() == null || request.emdId() != null) {
+        throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "SIGUNGU 타입의 지역 정보가 올바르지 않습니다.");
       }
     }
 
     if (mapType == MapType.EMD) {
-      if (request.sigunguId() == null || request.emdId() == null) {
-        throw new IllegalArgumentException("EMD 타입의 지역 정보가 올바르지 않습니다.");
+      if (request.sigunguCd() == null || request.emdId() == null) {
+        throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "EMD 타입의 지역 정보가 올바르지 않습니다.");
       }
     }
   }
