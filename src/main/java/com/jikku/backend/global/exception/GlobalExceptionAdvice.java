@@ -56,6 +56,13 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
                 .body(ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+      log.warn("IllegalArgumentException: {}", e.getMessage());
+      return ResponseEntity.status(GeneralErrorCode.INVALID_INPUT_VALUE.getStatus())
+        .body(ApiResponse.onFailure(GeneralErrorCode.INVALID_INPUT_VALUE, e.getMessage()));
+    }
+
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestPart(
             MissingServletRequestPartException ex, HttpHeaders headers,

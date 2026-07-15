@@ -16,17 +16,30 @@ public class FillMapController {
 
   private final FillMapService fillMapService;
 
-  // 시군구 색칠 지도 조회
   @GetMapping
   public ResponseEntity<List<FillMapResponse>> getSigunguFillMap() {
     List<FillMapResponse> response = fillMapService.getSigunguFillMap(1L);
     return ResponseEntity.ok(response);
   }
 
-  // 시군구 채우기
   @PostMapping
-  public ResponseEntity<FillMapResponse> saveSigunguFillMap(@RequestBody FillMapRequest request) {
+  public ResponseEntity<FillMapResponse> saveFillMap(@RequestBody FillMapRequest request) {
     FillMapResponse response = fillMapService.saveFillMap(request, 1L);
+    return ResponseEntity.ok(response);
+  }
+
+  @PatchMapping("/{fillMapId}")
+  public ResponseEntity<FillMapResponse> updateFillMap(
+    @PathVariable Long fillMapId,
+    @RequestBody FillMapRequest request
+  ) {
+    FillMapResponse response = fillMapService.updateFillMap(fillMapId, request, 1L);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/emd")
+  public ResponseEntity<List<FillMapResponse>> getEmdFillMap(@RequestParam Long sigunguId) {
+    List<FillMapResponse> response = fillMapService.getEmdFillMap(1L, sigunguId);
     return ResponseEntity.ok(response);
   }
 }

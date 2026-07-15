@@ -1,6 +1,8 @@
 package com.jikku.backend.domain.map.entity;
 
-import com.jikku.backend.global.common.BaseTimeEntity;
+import com.jikku.backend.domain.map.enums.FillType;
+import com.jikku.backend.domain.map.enums.MapType;
+import com.jikku.backend.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,4 +37,20 @@ public class FillMap extends BaseTimeEntity {
   private Long sigunguId;
 
   private Long emdId;
+
+  public void updateFillMap(
+    Long sigunguId,
+    Long emdId,
+    MapType mapType,
+    FillType fillType,
+    String color,
+    String imgUrl
+  ) {
+    this.sigunguId = sigunguId;
+    this.emdId = emdId;
+    this.mapType = mapType;
+    this.fillType = fillType;
+    this.color = color;
+    this.imgUrl = imgUrl;
+  }
 }
