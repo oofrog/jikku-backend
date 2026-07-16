@@ -3,8 +3,8 @@ package com.jikku.backend.domain.map.controller;
 import com.jikku.backend.domain.map.dto.FillMapRequest;
 import com.jikku.backend.domain.map.dto.FillMapResponse;
 import com.jikku.backend.domain.map.service.FillMapService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,33 +19,29 @@ public class FillMapController {
   private final FillMapService fillMapService;
 
   @GetMapping
-  public ResponseEntity<ApiResponse<List<FillMapResponse>>> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
-    List<FillMapResponse> response = fillMapService.getSigunguFillMap(memberId);
-    return ResponseEntity.ok(ApiResponse.onSuccess(response));
+  public ApiResponse<List<FillMapResponse>> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
+    return ApiResponse.onSuccess(fillMapService.getSigunguFillMap(memberId));
   }
 
   @PostMapping
-  public ResponseEntity<ApiResponse<FillMapResponse>> saveFillMap(@AuthenticationPrincipal Long memberId, @RequestBody FillMapRequest request) {
-    FillMapResponse response = fillMapService.saveFillMap(request, memberId);
-    return ResponseEntity.ok(ApiResponse.onSuccess(response));
+  public ApiResponse<FillMapResponse> saveFillMap(@AuthenticationPrincipal Long memberId, @Valid @RequestBody FillMapRequest request) {
+    return ApiResponse.onSuccess(fillMapService.saveFillMap(request, memberId));
   }
 
   @PatchMapping("/{fillMapId}")
-  public ResponseEntity<ApiResponse<FillMapResponse>> updateFillMap(
+  public ApiResponse<FillMapResponse> updateFillMap(
     @AuthenticationPrincipal Long memberId,
     @PathVariable Long fillMapId,
-    @RequestBody FillMapRequest request
+    @Valid @RequestBody FillMapRequest request
   ) {
-    FillMapResponse response = fillMapService.updateFillMap(fillMapId, request, memberId);
-    return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    return ApiResponse.onSuccess(fillMapService.updateFillMap(fillMapId, request, memberId));
   }
 
   @GetMapping("/emd")
-  public ResponseEntity<ApiResponse<List<FillMapResponse>>> getEmdFillMap(
+  public ApiResponse<List<FillMapResponse>> getEmdFillMap(
     @AuthenticationPrincipal Long memberId,
     @RequestParam("sigunguCd") Integer sigunguCd
   ) {
-    List<FillMapResponse> response = fillMapService.getEmdFillMap(memberId, sigunguCd);
-    return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    return ApiResponse.onSuccess(fillMapService.getEmdFillMap(memberId, sigunguCd));
   }
 }

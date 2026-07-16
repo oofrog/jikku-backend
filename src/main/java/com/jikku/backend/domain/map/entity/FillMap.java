@@ -3,13 +3,20 @@ package com.jikku.backend.domain.map.entity;
 import com.jikku.backend.domain.map.enums.FillType;
 import com.jikku.backend.domain.map.enums.MapType;
 import com.jikku.backend.global.entity.BaseTimeEntity;
+import org.hibernate.annotations.Check;
 import jakarta.persistence.*;
 import lombok.*;
+import com.jikku.backend.domain.region.entity.Sigungu;
+import com.jikku.backend.domain.region.entity.Emd;
 
 @Entity
+@Check(constraints = "(" +
+  "(map_type = 'SIGUNGU' AND sigungu_cd IS NOT NULL AND emd_id IS NULL) OR " +
+  "(map_type = 'EMD' AND sigungu_cd IS NOT NULL AND emd_id IS NOT NULL)" +
+")")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "fill_map")
 public class FillMap extends BaseTimeEntity {
@@ -34,23 +41,82 @@ public class FillMap extends BaseTimeEntity {
   @Column(nullable = false)
   private Long memberId;
 
-  private Long sigunguId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "sigungu_cd", nullable = false)
+  private Sigungu sigungu;
 
-  private Long emdId;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "emd_id")
+  private Emd emd;
 
-  public void updateFillMap(
-    Long sigunguId,
-    Long emdId,
-    MapType mapType,
+  public void updateRegion(Sigungu sigungu, Emd emd, MapType mapType) {
+    this.sigungu = sigungu;
+    this.emd = emd;
+    this.mapType = mapType;
+  }
+
+  public void fillWithColor(String color) {
+    this.fillType = FillType.COLOR;
+    this.color = color;
+    this.imgUrl = null;
+  }
+
+  public void fillWithImage(String imgUrl) {
+    this.fillType = FillType.IMAGE;
+    this.imgUrl = imgUrl;
+    this.color = null;
+  }
+
+  public static FillMap ofSigungu(
+    Long memberId,
+    Sigungu sigungu,
     FillType fillType,
     String color,
     String imgUrl
   ) {
-    this.sigunguId = sigunguId;
-    this.emdId = emdId;
-    this.mapType = mapType;
-    this.fillType = fillType;
-    this.color = color;
-    this.imgUrl = imgUrl;
+    FillMap fillMap = FillMap.builder()
+      .memberId(memberId)
+      .sigungu(sigungu)
+      .emd(null)
+      .mapType(MapType.SIGUNGU)
+      .build();
+
+    if (fillType == FillType.COLOR) {
+      fillMap.fillWithColor(color);
+    }
+
+    if (fillType == FillType.IMAGE) {
+      fillMap.fillWithImage(imgUrl);
+    }
+
+    return fillMap;
+  }
+
+  public static FillMap ofEmd(
+    Long memberId,
+    Sigungu sigungu,
+    Emd emd,
+    FillType fillType,
+    String color,
+    String imgUrl
+  ) {
+    FillMap fillMap = FillMap.builder()
+      .memberId(memberId)
+      .sigungu(sigungu)
+      .emd(emd)
+      .mapType(MapType.EMD)
+      .build();
+
+    if (fillType == FillType.COLOR) {
+      fillMap.fillWithColor(color);
+    }
+
+    if (fillType == FillType.IMAGE) {
+      fillMap.fillWithImage(imgUrl);
+    }
+
+    return fillMap;
   }
 }
+
+
