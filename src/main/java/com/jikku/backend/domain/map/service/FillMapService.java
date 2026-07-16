@@ -52,6 +52,7 @@ public class FillMapService {
     validateRequest(request);
     Sigungu sigungu = getSigungu(request.sigunguCd());
     Emd emd = getEmd(request.emdId());
+    validateEmdBelongsToSigungu(sigungu, emd);
 
     FillMap fillMap = request.mapType() == MapType.SIGUNGU
       ? FillMap.ofSigungu(memberId, sigungu, request.fillType(), request.color(), request.imgUrl())
@@ -73,6 +74,7 @@ public class FillMapService {
     }
     Sigungu sigungu = getSigungu(request.sigunguCd());
     Emd emd = getEmd(request.emdId());
+    validateEmdBelongsToSigungu(sigungu, emd);
 
     fillMap.updateRegion(
       sigungu,
@@ -125,5 +127,15 @@ public class FillMapService {
 
     return emdRepository.findById(emdId)
       .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 읍면동 ID입니다."));
+  }
+
+  private void validateEmdBelongsToSigungu(Sigungu sigungu, Emd emd) {
+    if (emd == null) {
+      return;
+    }
+
+    if (!emd.getSigungu().getSigunguCd().equals(sigungu.getSigunguCd())) {
+      throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "선택한 읍면동이 해당 시군구에 속하지 않습니다.");
+    }
   }
 }

@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.map.controller;
 
 import com.jikku.backend.domain.map.dto.FillMapRequest;
+import com.jikku.backend.domain.map.dto.FillMapListResponse;
 import com.jikku.backend.domain.map.dto.FillMapResponse;
 import com.jikku.backend.domain.map.service.FillMapService;
 import jakarta.validation.Valid;
@@ -8,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +18,8 @@ public class FillMapController {
   private final FillMapService fillMapService;
 
   @GetMapping
-  public ApiResponse<List<FillMapResponse>> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
-    return ApiResponse.onSuccess(fillMapService.getSigunguFillMap(memberId));
+  public ApiResponse<FillMapListResponse> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
+    return ApiResponse.onSuccess(FillMapListResponse.from(fillMapService.getSigunguFillMap(memberId)));
   }
 
   @PostMapping
@@ -28,7 +27,7 @@ public class FillMapController {
     return ApiResponse.onSuccess(fillMapService.saveFillMap(request, memberId));
   }
 
-  @PatchMapping("/{fillMapId}")
+  @PatchMapping("/update/{fillMapId}")
   public ApiResponse<FillMapResponse> updateFillMap(
     @AuthenticationPrincipal Long memberId,
     @PathVariable Long fillMapId,
@@ -37,11 +36,11 @@ public class FillMapController {
     return ApiResponse.onSuccess(fillMapService.updateFillMap(fillMapId, request, memberId));
   }
 
-  @GetMapping("/emd")
-  public ApiResponse<List<FillMapResponse>> getEmdFillMap(
+  @GetMapping("/{sigunguCd}")
+  public ApiResponse<FillMapListResponse> getEmdFillMap(
     @AuthenticationPrincipal Long memberId,
-    @RequestParam("sigunguCd") Integer sigunguCd
+    @PathVariable Integer sigunguCd
   ) {
-    return ApiResponse.onSuccess(fillMapService.getEmdFillMap(memberId, sigunguCd));
+    return ApiResponse.onSuccess(FillMapListResponse.from(fillMapService.getEmdFillMap(memberId, sigunguCd)));
   }
 }
