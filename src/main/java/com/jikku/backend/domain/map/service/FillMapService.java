@@ -49,38 +49,22 @@ public class FillMapService {
   // 지도 채우기 저장
   @Transactional
   public FillMapResponse saveFillMap(FillMapRequest request, Long memberId) {
-    validateRequest(request);
     Sigungu sigungu = getSigungu(request.sigunguCd());
-    Emd emd = getEmd(request.emdId());
-    validateEmdBelongsToSigungu(sigungu, emd);
 
-    FillMap fillMap = request.mapType() == MapType.SIGUNGU
-      ? FillMap.ofSigungu(memberId, sigungu, request.fillType(), request.color(), request.imgUrl())
-      : FillMap.ofEmd(memberId, sigungu, emd, request.fillType(), request.color(), request.imgUrl());
-
-    FillMap saved = fillMapRepository.save(fillMap);
+    FillMap saved = fillMapRepository.save(
+      FillMap.ofSigungu(memberId, sigungu, request.fillType(), request.color(), request.imgUrl())
+    );
     return FillMapResponse.from(saved);
   }
 
   @Transactional
   public FillMapResponse updateFillMap(Long fillMapId, FillMapRequest request, Long memberId) {
-    validateRequest(request);
-
     FillMap fillMap = fillMapRepository.findById(fillMapId)
       .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "해당 지도 채우기 데이터가 존재하지 않습니다."));
 
     if (!fillMap.getMemberId().equals(memberId)) {
       throw new BaseException(GeneralErrorCode.ACCESS_DENIED, "해당 지도 채우기 데이터를 수정할 권한이 없습니다.");
     }
-    Sigungu sigungu = getSigungu(request.sigunguCd());
-    Emd emd = getEmd(request.emdId());
-    validateEmdBelongsToSigungu(sigungu, emd);
-
-    fillMap.updateRegion(
-      sigungu,
-      emd,
-      request.mapType()
-    );
 
     if (request.fillType() == FillType.COLOR) {
       fillMap.fillWithColor(request.color());
@@ -92,27 +76,6 @@ public class FillMapService {
 
     FillMap updated = fillMapRepository.save(fillMap);
     return FillMapResponse.from(updated);
-  }
-
-  private void validateRequest(FillMapRequest request) {
-
-    MapType mapType = request.mapType();
-
-    if (mapType == null) {
-      throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "mapType은 필수입니다.");
-    }
-
-    if (mapType == MapType.SIGUNGU) {
-      if (request.sigunguCd() == null || request.emdId() != null) {
-        throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "SIGUNGU 타입의 지역 정보가 올바르지 않습니다.");
-      }
-    }
-
-    if (mapType == MapType.EMD) {
-      if (request.sigunguCd() == null || request.emdId() == null) {
-        throw new BaseException(GeneralErrorCode.INVALID_INPUT_VALUE, "EMD 타입의 지역 정보가 올바르지 않습니다.");
-      }
-    }
   }
 
   private Sigungu getSigungu(Integer sigunguCd) {

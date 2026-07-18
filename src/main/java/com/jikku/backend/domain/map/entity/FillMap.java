@@ -42,18 +42,12 @@ public class FillMap extends BaseTimeEntity {
   private Long memberId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "sigungu_id", referencedColumnName = "sigungu_cd", nullable = false)
+  @JoinColumn(name = "sigungu_cd", nullable = false)
   private Sigungu sigungu;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "emd_id")
   private Emd emd;
-
-  public void updateRegion(Sigungu sigungu, Emd emd, MapType mapType) {
-    this.sigungu = sigungu;
-    this.emd = emd;
-    this.mapType = mapType;
-  }
 
   public void fillWithColor(String color) {
     this.fillType = FillType.COLOR;
