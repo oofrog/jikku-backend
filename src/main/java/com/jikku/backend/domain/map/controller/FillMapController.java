@@ -1,8 +1,9 @@
 package com.jikku.backend.domain.map.controller;
 
-import com.jikku.backend.domain.map.dto.FillMapRequest;
+import com.jikku.backend.domain.map.dto.SigunguFillRequest;
 import com.jikku.backend.domain.map.dto.FillMapListResponse;
-import com.jikku.backend.domain.map.dto.FillMapResponse;
+import com.jikku.backend.domain.map.dto.SigunguFillResponse;
+import com.jikku.backend.domain.map.dto.EmdFillResponse;
 import com.jikku.backend.domain.map.service.EmdFillService;
 import com.jikku.backend.domain.map.service.SigunguFillService;
 import jakarta.validation.Valid;
@@ -20,26 +21,26 @@ public class FillMapController {
   private final EmdFillService emdFillService;
 
   @GetMapping
-  public ApiResponse<FillMapListResponse> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
+  public ApiResponse<FillMapListResponse<SigunguFillResponse>> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
     return ApiResponse.onSuccess(FillMapListResponse.from(sigunguFillService.getSigunguFillMap(memberId)));
   }
 
   @PostMapping
-  public ApiResponse<FillMapResponse> saveFillMap(@AuthenticationPrincipal Long memberId, @Valid @RequestBody FillMapRequest request) {
+  public ApiResponse<SigunguFillResponse> saveFillMap(@AuthenticationPrincipal Long memberId, @Valid @RequestBody SigunguFillRequest request) {
     return ApiResponse.onSuccess(sigunguFillService.saveFillMap(request, memberId));
   }
 
   @PatchMapping("/update/{fillMapId}")
-  public ApiResponse<FillMapResponse> updateFillMap(
+  public ApiResponse<SigunguFillResponse> updateFillMap(
     @AuthenticationPrincipal Long memberId,
     @PathVariable Long fillMapId,
-    @Valid @RequestBody FillMapRequest request
+    @Valid @RequestBody SigunguFillRequest request
   ) {
     return ApiResponse.onSuccess(sigunguFillService.updateFillMap(fillMapId, request, memberId));
   }
 
   @GetMapping("/{sigunguCd}")
-  public ApiResponse<FillMapListResponse> getEmdFillMap(
+  public ApiResponse<FillMapListResponse<EmdFillResponse>> getEmdFillMap(
     @AuthenticationPrincipal Long memberId,
     @PathVariable Integer sigunguCd
   ) {

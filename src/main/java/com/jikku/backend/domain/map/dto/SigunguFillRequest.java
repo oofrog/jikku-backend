@@ -1,13 +1,12 @@
 package com.jikku.backend.domain.map.dto;
 
 import com.jikku.backend.domain.map.enums.FillType;
-import com.jikku.backend.domain.map.enums.MapType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record FillMapRequest(
+public record SigunguFillRequest(
   @NotNull(message = "sigunguCd는 필수입니다.")
   @Schema(example = "51110")
   Integer sigunguCd,

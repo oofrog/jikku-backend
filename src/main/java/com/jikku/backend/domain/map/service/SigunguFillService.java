@@ -1,7 +1,7 @@
 package com.jikku.backend.domain.map.service;
 
-import com.jikku.backend.domain.map.dto.FillMapRequest;
-import com.jikku.backend.domain.map.dto.FillMapResponse;
+import com.jikku.backend.domain.map.dto.SigunguFillRequest;
+import com.jikku.backend.domain.map.dto.SigunguFillResponse;
 import com.jikku.backend.domain.map.entity.FillMap;
 import com.jikku.backend.domain.map.enums.FillType;
 import com.jikku.backend.domain.map.enums.MapType;
@@ -23,25 +23,25 @@ public class SigunguFillService {
   private final SigunguRepository sigunguRepository;
 
   @Transactional(readOnly = true)
-  public List<FillMapResponse> getSigunguFillMap(Long memberId) {
+  public List<SigunguFillResponse> getSigunguFillMap(Long memberId) {
     return fillMapRepository.findByMemberIdAndMapType(memberId, MapType.SIGUNGU)
       .stream()
-      .map(FillMapResponse::from)
+      .map(SigunguFillResponse::from)
       .toList();
   }
 
   @Transactional
-  public FillMapResponse saveFillMap(FillMapRequest request, Long memberId) {
+  public SigunguFillResponse saveFillMap(SigunguFillRequest request, Long memberId) {
     Sigungu sigungu = getSigungu(request.sigunguCd());
 
     FillMap saved = fillMapRepository.save(
       FillMap.ofSigungu(memberId, sigungu, request.fillType(), request.color(), request.imgUrl())
     );
-    return FillMapResponse.from(saved);
+    return SigunguFillResponse.from(saved);
   }
 
   @Transactional
-  public FillMapResponse updateFillMap(Long fillMapId, FillMapRequest request, Long memberId) {
+  public SigunguFillResponse updateFillMap(Long fillMapId, SigunguFillRequest request, Long memberId) {
     FillMap fillMap = fillMapRepository.findById(fillMapId)
       .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "해당 지도 채우기 데이터가 존재하지 않습니다."));
 
@@ -58,7 +58,7 @@ public class SigunguFillService {
     }
 
     FillMap updated = fillMapRepository.save(fillMap);
-    return FillMapResponse.from(updated);
+    return SigunguFillResponse.from(updated);
   }
 
   private Sigungu getSigungu(Integer sigunguCd) {
