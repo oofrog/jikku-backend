@@ -9,7 +9,7 @@ import lombok.Builder;
 @Builder
 public record FillMapRequest(
   @NotNull(message = "sigunguCd는 필수입니다.")
-  @Schema(example = "11010")
+  @Schema(example = "51110")
   Integer sigunguCd,
 
   @NotNull(message = "fillType은 필수입니다.")
