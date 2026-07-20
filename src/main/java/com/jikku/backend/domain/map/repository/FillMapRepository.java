@@ -12,7 +12,7 @@ public interface FillMapRepository extends JpaRepository<FillMap, Long> {
   List<FillMap> findByMemberId(Long memberId);
   List<FillMap> findByMemberIdAndMapType(Long memberId, MapType mapType);
 
-  List<FillMap> findByMemberIdAndMapTypeAndSigungu_SigunguCd(
+  Optional<FillMap> findByMemberIdAndMapTypeAndSigungu_SigunguCd(
     Long memberId,
     MapType mapType,
     Integer sigunguCd

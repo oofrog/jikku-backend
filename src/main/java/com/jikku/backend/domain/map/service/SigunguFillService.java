@@ -37,9 +37,21 @@ public class SigunguFillService {
   public SigunguFillResponse saveFillMap(SigunguFillRequest request, Long memberId) {
     Sigungu sigungu = getSigungu(request.sigunguCd());
 
+    fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCd(
+      memberId,
+      MapType.SIGUNGU,
+      request.sigunguCd()
+    ).ifPresent(fillMap -> {
+      throw new BaseException(
+        GeneralErrorCode.DUPLICATE_RESOURCE,
+        "이미 해당 시군구 채우기 데이터가 존재합니다."
+      );
+    });
+
     FillMap saved = fillMapRepository.save(
       FillMap.ofSigungu(memberId, sigungu, request.fillType(), request.color(), request.imgUrl())
     );
+
     return SigunguFillResponse.from(saved);
   }
 
