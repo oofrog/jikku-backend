@@ -4,6 +4,7 @@ import com.jikku.backend.domain.map.dto.EmdFillResponse;
 import com.jikku.backend.domain.map.enums.MapType;
 import com.jikku.backend.domain.map.repository.FillMapRepository;
 import com.jikku.backend.domain.region.entity.Emd;
+import com.jikku.backend.domain.map.dto.FillMapListResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,14 +26,16 @@ public class EmdFillService {
 
   // 읍면동 색칠 지도 조회
   @Transactional(readOnly = true)
-  public List<EmdFillResponse> getEmdFillMap(Long memberId, Integer sigunguCd) {
+  public FillMapListResponse<EmdFillResponse> getEmdFillMap(Long memberId, Integer sigunguCd) {
     Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
       .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
 
-    return fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCd(memberId, MapType.EMD, sigungu.getSigunguCd())
-      .stream()
-      .map(EmdFillResponse::from)
-      .toList();
+    return FillMapListResponse.from(
+      fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCd(memberId, MapType.EMD, sigungu.getSigunguCd())
+        .stream()
+        .map(EmdFillResponse::from)
+        .toList()
+    );
   }
 
   private Emd getEmd(Long emdId) {

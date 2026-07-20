@@ -22,7 +22,7 @@ public class FillMapController {
 
   @GetMapping
   public ApiResponse<FillMapListResponse<SigunguFillResponse>> getSigunguFillMap(@AuthenticationPrincipal Long memberId) {
-    return ApiResponse.onSuccess(FillMapListResponse.from(sigunguFillService.getSigunguFillMap(memberId)));
+    return ApiResponse.onSuccess(sigunguFillService.getSigunguFillMap(memberId));
   }
 
   @PostMapping
@@ -44,6 +44,6 @@ public class FillMapController {
     @AuthenticationPrincipal Long memberId,
     @PathVariable Integer sigunguCd
   ) {
-    return ApiResponse.onSuccess(FillMapListResponse.from(emdFillService.getEmdFillMap(memberId, sigunguCd)));
+    return ApiResponse.onSuccess(emdFillService.getEmdFillMap(memberId, sigunguCd));
   }
 }
