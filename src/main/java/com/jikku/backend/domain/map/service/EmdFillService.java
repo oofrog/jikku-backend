@@ -14,6 +14,8 @@ import com.jikku.backend.domain.region.repository.EmdRepository;
 import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
+import com.jikku.backend.domain.map.dto.EmdFillRequest;
+import com.jikku.backend.domain.map.entity.FillMap;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,32 @@ public class EmdFillService {
         .map(EmdFillResponse::from)
         .toList()
     );
+  }
+  @Transactional
+  public EmdFillResponse saveEmdFillMap(Long memberId, Integer sigunguCd, EmdFillRequest request) {
+    Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
+      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
+
+    Emd emd = getEmd(request.emdId());
+    validateEmdBelongsToSigungu(sigungu, emd);
+
+    fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCdAndEmd_EmdId(
+      memberId,
+      MapType.EMD,
+      sigunguCd,
+      request.emdId()
+    ).ifPresent(fillMap -> {
+      throw new BaseException(
+        GeneralErrorCode.DUPLICATE_RESOURCE,
+        "이미 해당 읍면동 채우기 데이터가 존재합니다."
+      );
+    });
+
+    FillMap saved = fillMapRepository.save(
+      FillMap.ofEmd(memberId, sigungu, emd, request.fillType(), request.color(), request.imgUrl())
+    );
+
+    return EmdFillResponse.from(saved);
   }
 
   private Emd getEmd(Long emdId) {

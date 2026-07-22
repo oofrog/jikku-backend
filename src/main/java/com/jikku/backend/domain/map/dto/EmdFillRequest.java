@@ -7,12 +7,8 @@ import lombok.Builder;
 
 @Builder
 public record EmdFillRequest(
-  @NotNull(message = "sigunguCd는 필수입니다.")
-  @Schema(example = "51110")
-  Integer sigunguCd,
-
   @NotNull(message = "emdId는 필수입니다.")
-  @Schema(example = "123")
+  @Schema(example = "301")
   Long emdId,
 
   @NotNull(message = "fillType은 필수입니다.")

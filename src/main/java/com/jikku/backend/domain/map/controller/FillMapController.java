@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.jikku.backend.domain.map.dto.EmdFillRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,4 +47,14 @@ public class FillMapController {
   ) {
     return ApiResponse.onSuccess(emdFillService.getEmdFillMap(memberId, sigunguCd));
   }
+
+  @PostMapping("/{sigunguCd}")
+  public ApiResponse<EmdFillResponse> saveEmdFillMap(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd,
+    @Valid @RequestBody EmdFillRequest request
+  ) {
+    return ApiResponse.onSuccess(emdFillService.saveEmdFillMap(memberId, sigunguCd, request));
+  }
 }
+
