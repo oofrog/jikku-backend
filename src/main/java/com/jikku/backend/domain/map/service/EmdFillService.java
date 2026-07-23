@@ -1,21 +1,21 @@
 package com.jikku.backend.domain.map.service;
 
+import com.jikku.backend.domain.map.dto.EmdFillRequest;
 import com.jikku.backend.domain.map.dto.EmdFillResponse;
+import com.jikku.backend.domain.map.dto.FillMapListResponse;
+import com.jikku.backend.domain.map.entity.FillMap;
 import com.jikku.backend.domain.map.enums.MapType;
 import com.jikku.backend.domain.map.repository.FillMapRepository;
 import com.jikku.backend.domain.region.entity.Emd;
-import com.jikku.backend.domain.map.dto.FillMapListResponse;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.jikku.backend.domain.region.entity.Sigungu;
 import com.jikku.backend.domain.region.repository.EmdRepository;
 import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
-import com.jikku.backend.domain.map.dto.EmdFillRequest;
-import com.jikku.backend.domain.map.entity.FillMap;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +25,6 @@ public class EmdFillService {
   private final SigunguRepository sigunguRepository;
   private final EmdRepository emdRepository;
 
-
-  // 읍면동 색칠 지도 조회
   @Transactional(readOnly = true)
   public FillMapListResponse<EmdFillResponse> getEmdFillMap(Long memberId, Integer sigunguCd) {
     Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
@@ -39,6 +37,7 @@ public class EmdFillService {
         .toList()
     );
   }
+
   @Transactional
   public EmdFillResponse saveEmdFillMap(Long memberId, Integer sigunguCd, EmdFillRequest request) {
     Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
