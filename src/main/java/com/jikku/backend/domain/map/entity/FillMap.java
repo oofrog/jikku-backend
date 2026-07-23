@@ -11,9 +11,18 @@ import com.jikku.backend.domain.region.entity.Emd;
 
 @Entity
 @Check(constraints = "(" +
-  "(map_type = 'SIGUNGU' AND sigungu_cd IS NOT NULL AND emd_id IS NULL) OR " +
-  "(map_type = 'EMD' AND sigungu_cd IS NOT NULL AND emd_id IS NOT NULL)" +
-")")
+  "(" +
+  "map_type = 'SIGUNGU' AND sigungu_cd IS NOT NULL AND emd_id IS NULL" +
+  ") OR (" +
+  "map_type = 'EMD' AND sigungu_cd IS NOT NULL AND emd_id IS NOT NULL" +
+  ")" +
+  ") AND (" +
+  "(" +
+  "fill_type = 'COLOR' AND color IS NOT NULL AND img_url IS NULL" +
+  ") OR (" +
+  "fill_type = 'IMAGE' AND img_url IS NOT NULL AND color IS NULL" +
+  ")" +
+  ")")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
