@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.URL;
 
 @Builder
 public record SigunguFillRequest(
@@ -16,9 +18,14 @@ public record SigunguFillRequest(
   @Schema(example = "COLOR", allowableValues = {"COLOR", "IMAGE"})
   FillType fillType,
 
+  @Pattern(
+    regexp = "^#([A-Fa-f0-9]{6})$",
+    message = "color는 #RRGGBB 형식이어야 합니다."
+  )
   @Schema(example = "#4F46E5", nullable = true)
   String color,
 
+  @URL(message = "imgUrl은 올바른 URL 형식이어야 합니다.")
   @Schema(example = "https://example.com/map.png", nullable = true)
   String imgUrl
 ) {
