@@ -7,6 +7,7 @@ import lombok.Builder;
 public record MapStickerResponse(
   Long mapStickerId,
   String stickerType,
+  Long travelPostId,
   Long stickerId,
   String stickerUrl,
   Float posX,
@@ -18,8 +19,9 @@ public record MapStickerResponse(
     return MapStickerResponse.builder()
       .mapStickerId(mapSticker.getMapStickerId())
       .stickerType(mapSticker.getStickerType().name())
-      .stickerId(mapSticker.getSticker().getStickerId())
-      .stickerUrl(mapSticker.getSticker().getStickerUrl())
+      .travelPostId(mapSticker.getTravelPostId())
+      .stickerId(mapSticker.getSticker() != null ? mapSticker.getSticker().getStickerId() : null)
+      .stickerUrl(mapSticker.getSticker() != null ? mapSticker.getSticker().getStickerUrl() : null)
       .posX(mapSticker.getPosX())
       .posY(mapSticker.getPosY())
       .scale(mapSticker.getScale())
