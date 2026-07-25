@@ -1,19 +1,21 @@
 package com.jikku.backend.domain.map.service;
 
+import com.jikku.backend.domain.map.dto.EmdFillRequest;
 import com.jikku.backend.domain.map.dto.EmdFillResponse;
+import com.jikku.backend.domain.map.dto.FillMapListResponse;
+import com.jikku.backend.domain.map.entity.FillMap;
 import com.jikku.backend.domain.map.enums.MapType;
 import com.jikku.backend.domain.map.repository.FillMapRepository;
 import com.jikku.backend.domain.region.entity.Emd;
-import com.jikku.backend.domain.map.dto.FillMapListResponse;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import com.jikku.backend.domain.region.entity.Sigungu;
 import com.jikku.backend.domain.region.repository.EmdRepository;
 import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +25,6 @@ public class EmdFillService {
   private final SigunguRepository sigunguRepository;
   private final EmdRepository emdRepository;
 
-
-  // 읍면동 색칠 지도 조회
   @Transactional(readOnly = true)
   public FillMapListResponse<EmdFillResponse> getEmdFillMap(Long memberId, Integer sigunguCd) {
     Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
@@ -36,6 +36,33 @@ public class EmdFillService {
         .map(EmdFillResponse::from)
         .toList()
     );
+  }
+
+  @Transactional
+  public EmdFillResponse saveEmdFillMap(Long memberId, Integer sigunguCd, EmdFillRequest request) {
+    Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
+      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
+
+    Emd emd = getEmd(request.emdId());
+    validateEmdBelongsToSigungu(sigungu, emd);
+
+    fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCdAndEmd_EmdId(
+      memberId,
+      MapType.EMD,
+      sigunguCd,
+      request.emdId()
+    ).ifPresent(fillMap -> {
+      throw new BaseException(
+        GeneralErrorCode.DUPLICATE_RESOURCE,
+        "이미 해당 읍면동 채우기 데이터가 존재합니다."
+      );
+    });
+
+    FillMap saved = fillMapRepository.save(
+      FillMap.ofEmd(memberId, sigungu, emd, request.fillType(), request.color(), request.imgUrl())
+    );
+
+    return EmdFillResponse.from(saved);
   }
 
   private Emd getEmd(Long emdId) {

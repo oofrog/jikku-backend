@@ -58,10 +58,23 @@ public class SigunguFillService {
   @Transactional
   public SigunguFillResponse updateFillMap(Long fillMapId, SigunguFillRequest request, Long memberId) {
     FillMap fillMap = fillMapRepository.findById(fillMapId)
-      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "해당 지도 채우기 데이터가 존재하지 않습니다."));
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "해당 지도 채우기 데이터가 존재하지 않습니다."
+      ));
+
+    if (fillMap.getMapType() != MapType.SIGUNGU) {
+      throw new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "해당 지도 채우기 데이터가 존재하지 않습니다."
+      );
+    }
 
     if (!fillMap.getMemberId().equals(memberId)) {
-      throw new BaseException(GeneralErrorCode.ACCESS_DENIED, "해당 지도 채우기 데이터를 수정할 권한이 없습니다.");
+      throw new BaseException(
+        GeneralErrorCode.ACCESS_DENIED,
+        "해당 지도 채우기 데이터를 수정할 권한이 없습니다."
+      );
     }
 
     if (request.fillType() == FillType.COLOR) {
@@ -78,6 +91,9 @@ public class SigunguFillService {
 
   private Sigungu getSigungu(Integer sigunguCd) {
     return sigunguRepository.findBySigunguCd(sigunguCd)
-      .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "존재하지 않는 시군구 코드입니다."
+      ));
   }
 }
