@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MapStickerService {
 
   private final MapStickerRepository mapStickerRepository;
@@ -29,7 +30,6 @@ public class MapStickerService {
     );
   }
 
-  @Transactional
   public MapStickerResponse saveMapSticker(Long memberId, Integer sigunguCd, MapStickerRequest request) {
     Sticker sticker = stickerRepository.findById(request.stickerId())
       .orElseThrow(() -> new BaseException(
