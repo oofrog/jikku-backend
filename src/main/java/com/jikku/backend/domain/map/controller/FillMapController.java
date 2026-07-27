@@ -3,9 +3,12 @@ package com.jikku.backend.domain.map.controller;
 import com.jikku.backend.domain.map.dto.EmdFillRequest;
 import com.jikku.backend.domain.map.dto.EmdFillResponse;
 import com.jikku.backend.domain.map.dto.FillMapListResponse;
+import com.jikku.backend.domain.map.dto.MapStickerRequest;
+import com.jikku.backend.domain.map.dto.MapStickerResponse;
 import com.jikku.backend.domain.map.dto.SigunguFillRequest;
 import com.jikku.backend.domain.map.dto.SigunguFillResponse;
 import com.jikku.backend.domain.map.service.EmdFillService;
+import com.jikku.backend.domain.map.service.MapStickerService;
 import com.jikku.backend.domain.map.service.SigunguFillService;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,6 +23,7 @@ public class FillMapController {
 
   private final SigunguFillService sigunguFillService;
   private final EmdFillService emdFillService;
+  private final MapStickerService mapStickerService;
 
   @GetMapping
   public ApiResponse<FillMapListResponse<SigunguFillResponse>> getSigunguFillMap(
@@ -60,5 +64,22 @@ public class FillMapController {
     @Valid @RequestBody EmdFillRequest request
   ) {
     return ApiResponse.onSuccess(emdFillService.saveEmdFillMap(memberId, sigunguCd, request));
+  }
+
+  @GetMapping("/{sigunguCd}/stickers")
+  public ApiResponse<FillMapListResponse<MapStickerResponse>> getMapStickers(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd
+  ) {
+    return ApiResponse.onSuccess(mapStickerService.getMapStickers(memberId, sigunguCd));
+  }
+
+  @PostMapping("/{sigunguCd}/stickers")
+  public ApiResponse<MapStickerResponse> saveMapSticker(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd,
+    @Valid @RequestBody MapStickerRequest request
+  ) {
+    return ApiResponse.onSuccess(mapStickerService.saveMapSticker(memberId, sigunguCd, request));
   }
 }
