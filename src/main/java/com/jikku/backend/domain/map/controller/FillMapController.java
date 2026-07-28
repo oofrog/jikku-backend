@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import com.jikku.backend.domain.map.dto.MapTravelPostResponse;
+import com.jikku.backend.domain.map.service.MapTravelPostService;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class FillMapController {
   private final SigunguFillService sigunguFillService;
   private final EmdFillService emdFillService;
   private final MapStickerService mapStickerService;
+  private final MapTravelPostService mapTravelPostService;
 
   @GetMapping
   public ApiResponse<FillMapListResponse<SigunguFillResponse>> getSigunguFillMap(
@@ -81,5 +84,12 @@ public class FillMapController {
     @Valid @RequestBody MapStickerRequest request
   ) {
     return ApiResponse.onSuccess(mapStickerService.saveMapSticker(memberId, sigunguCd, request));
+  }
+  @GetMapping("/{sigunguCd}/travel-post")
+  public ApiResponse<FillMapListResponse<MapTravelPostResponse>> getMapTravelPosts(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd
+  ) {
+    return ApiResponse.onSuccess(mapTravelPostService.getMapTravelPosts(memberId, sigunguCd));
   }
 }
