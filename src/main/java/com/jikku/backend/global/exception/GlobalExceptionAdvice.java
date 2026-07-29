@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -124,6 +125,16 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
         log.warn("NoResourceFoundException: {}", ex.getMessage());
         return ResponseEntity.status(status)
                 .body(ApiResponse.onFailure(GeneralErrorCode.NOT_FOUND));
+    }
+
+    // 톰캣이 multipart 크기 제한으로 먼저 끊는 경우. 서비스의 용량 검증까지 못 가므로 여기서 같은 코드로 맞춘다
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException ex, HttpHeaders headers,
+            HttpStatusCode status, WebRequest request) {
+        log.warn("MaxUploadSizeExceededException: {}", ex.getMessage());
+        return ResponseEntity.status(GeneralErrorCode.FILE_SIZE_EXCEEDED.getStatus())
+                .body(ApiResponse.onFailure(GeneralErrorCode.FILE_SIZE_EXCEEDED));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
