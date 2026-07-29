@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.map.entity;
 
 import com.jikku.backend.domain.map.dto.MapStickerRequest;
+import com.jikku.backend.domain.map.dto.MapTravelPostRequest;
 import com.jikku.backend.domain.map.enums.StickerType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -88,6 +89,25 @@ public class MapSticker {
       .memberId(memberId)
       .travelPostId(null)
       .sticker(sticker)
+      .sigunguCd(sigunguCd)
+      .build();
+  }
+
+  public static MapSticker ofTravelPost(
+    Long memberId,
+    Integer sigunguCd,
+    Long travelPostId,
+    MapTravelPostRequest request
+  ) {
+    return MapSticker.builder()
+      .stickerType(StickerType.POST)
+      .posX(request.posX())
+      .posY(request.posY())
+      .scale(request.scale())
+      .zIndex(request.zIndex())
+      .memberId(memberId)
+      .travelPostId(travelPostId)
+      .sticker(null)
       .sigunguCd(sigunguCd)
       .build();
   }

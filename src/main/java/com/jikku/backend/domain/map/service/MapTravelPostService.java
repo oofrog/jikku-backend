@@ -6,6 +6,7 @@ import com.jikku.backend.domain.map.entity.MapSticker;
 import com.jikku.backend.domain.map.enums.StickerType;
 import com.jikku.backend.domain.map.repository.MapStickerRepository;
 import com.jikku.backend.domain.travelPost.entity.TravelPost;
+import com.jikku.backend.domain.map.dto.MapTravelPostRequest;
 import com.jikku.backend.domain.travelPost.repository.TravelPostRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
@@ -63,6 +64,52 @@ public class MapTravelPostService {
       .posY(mapSticker.getPosY())
       .scale(mapSticker.getScale())
       .zIndex(mapSticker.getZIndex())
+      .build();
+  }
+
+  @Transactional
+  public MapTravelPostResponse saveMapTravelPost(
+    Long memberId,
+    Integer sigunguCd,
+    MapTravelPostRequest request
+  ) {
+    TravelPost travelPost = travelPostRepository.findById(request.travelPostId())
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "존재하지 않는 여행 게시글입니다."
+      ));
+
+    mapStickerRepository.findByMemberIdAndSigunguCdAndStickerTypeAndTravelPostId(
+      memberId,
+      sigunguCd,
+      StickerType.POST,
+      request.travelPostId()
+    ).ifPresent(mapSticker -> {
+      throw new BaseException(
+        GeneralErrorCode.DUPLICATE_RESOURCE,
+        "이미 해당 여행 게시글 스티커가 존재합니다."
+      );
+    });
+
+    MapSticker mapSticker = MapSticker.ofTravelPost(
+      memberId,
+      sigunguCd,
+      travelPost.getTravelPostId(),
+      request
+    );
+
+    MapSticker saved = mapStickerRepository.save(mapSticker);
+
+    return MapTravelPostResponse.builder()
+      .mapStickerId(saved.getMapStickerId())
+      .stickerType(saved.getStickerType().name())
+      .travelPostId(travelPost.getTravelPostId())
+      .firstImage(travelPost.getFirstImage())
+      .title(travelPost.getTitle())
+      .posX(saved.getPosX())
+      .posY(saved.getPosY())
+      .scale(saved.getScale())
+      .zIndex(saved.getZIndex())
       .build();
   }
 }

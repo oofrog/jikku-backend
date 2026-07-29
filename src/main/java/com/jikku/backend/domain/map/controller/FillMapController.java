@@ -5,18 +5,19 @@ import com.jikku.backend.domain.map.dto.EmdFillResponse;
 import com.jikku.backend.domain.map.dto.FillMapListResponse;
 import com.jikku.backend.domain.map.dto.MapStickerRequest;
 import com.jikku.backend.domain.map.dto.MapStickerResponse;
+import com.jikku.backend.domain.map.dto.MapTravelPostRequest;
+import com.jikku.backend.domain.map.dto.MapTravelPostResponse;
 import com.jikku.backend.domain.map.dto.SigunguFillRequest;
 import com.jikku.backend.domain.map.dto.SigunguFillResponse;
 import com.jikku.backend.domain.map.service.EmdFillService;
 import com.jikku.backend.domain.map.service.MapStickerService;
+import com.jikku.backend.domain.map.service.MapTravelPostService;
 import com.jikku.backend.domain.map.service.SigunguFillService;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import com.jikku.backend.domain.map.dto.MapTravelPostResponse;
-import com.jikku.backend.domain.map.service.MapTravelPostService;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,11 +86,23 @@ public class FillMapController {
   ) {
     return ApiResponse.onSuccess(mapStickerService.saveMapSticker(memberId, sigunguCd, request));
   }
+
   @GetMapping("/{sigunguCd}/travel-post")
   public ApiResponse<FillMapListResponse<MapTravelPostResponse>> getMapTravelPosts(
     @AuthenticationPrincipal Long memberId,
     @PathVariable Integer sigunguCd
   ) {
     return ApiResponse.onSuccess(mapTravelPostService.getMapTravelPosts(memberId, sigunguCd));
+  }
+
+  @PostMapping("/{sigunguCd}/travel-post")
+  public ApiResponse<MapTravelPostResponse> saveMapTravelPost(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd,
+    @Valid @RequestBody MapTravelPostRequest request
+  ) {
+    return ApiResponse.onSuccess(
+      mapTravelPostService.saveMapTravelPost(memberId, sigunguCd, request)
+    );
   }
 }
