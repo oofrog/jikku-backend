@@ -43,6 +43,10 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // 이미지 스토리지: Cloudflare R2는 S3 호환 API라 AWS S3 SDK로 붙인다 (엔드포인트만 R2로 교체)
+    implementation platform('software.amazon.awssdk:bom:2.46.7')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
