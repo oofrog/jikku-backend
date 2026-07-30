@@ -2,7 +2,6 @@ package com.jikku.backend.domain.map.service;
 
 import com.jikku.backend.domain.map.dto.MapTravelPostRequest;
 import com.jikku.backend.domain.map.dto.MapTravelPostResponse;
-import com.jikku.backend.domain.map.MapTravelPostService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
