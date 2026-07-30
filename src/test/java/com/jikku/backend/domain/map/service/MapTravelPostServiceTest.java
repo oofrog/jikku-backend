@@ -15,7 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-//@Disabled("수동 확인용 테스트")
+// TravelPost 등록 기능이 아직 없어 실제 DB에 travel_post 행이 없다.
+// 활성화하면 ENTITY_NOT_FOUND로 실패하고, 통과하더라도 공유 DB에 map_sticker 행이
+// 커밋돼 재실행 시 중복으로 막힌다. 저장 검증은 다음 이슈에서 함께 다룬다.
+@Disabled("TravelPost 등록 구현 전까지 검증 불가")
 @SpringBootTest
 class MapTravelPostServiceTest {
 
