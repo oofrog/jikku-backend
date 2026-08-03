@@ -16,6 +16,9 @@ public class TravelPost {
   @Column(name = "travel_post_id")
   private Long travelPostId;
 
+  @Column(name = "member_id", nullable = false)
+  private Long memberId;
+
   @Column(nullable = false)
   private String title;
 

@@ -1,0 +1,26 @@
+# 테스트 전용 설정. 클래스패스 우선순위상 main 의 application.yml 을 통째로 가리므로
+# 애플리케이션이 기동하는 데 필요한 값을 전부 여기에 다시 둔다.
+# 목적은 실제 Supabase·TourAPI 에 붙지 않고 컨텍스트만 띄우는 것이라 값은 모두 더미다.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jikku-test
+    username: test
+    password: test
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none        # 스키마 생성을 시도하면 실제 접속이 필요해진다
+    properties:
+      hibernate:
+        # dialect 를 명시하지 않으면 Hibernate 가 JDBC 메타데이터를 읽으려 접속한다
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+tour-api:
+  base-url: https://apis.data.go.kr/B551011
+  service-key: test-service-key
+  mobile-app: jikku-test
+
+jwt:
+  secret: test-only-secret-not-used-for-real-signing-0123456789   # HS256 최소 32바이트
+  access-expiration: 3600000
