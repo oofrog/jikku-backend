@@ -16,6 +16,11 @@ spring:
       hibernate:
         format_sql: true        # SQL 보기 좋게 포맷팅
 
+  servlet:
+    multipart:
+      max-file-size: 10MB       # ImageService의 검증값과 동일. 초과분은 컨트롤러 도달 전에 톰캣이 끊는다
+      max-request-size: 12MB    # 파일 + 나머지 파트 합계
+
 # TourAPI
 tour-api:
   service-key: ${TOUR_API_SERVICE_KEY}
@@ -26,3 +31,11 @@ tour-api:
 jwt:
   secret: ${JWT_SECRET}                # HS256 서명키. 최소 32바이트(256bit) 이상이어야 함
   access-expiration: 3600000           # Access 토큰 만료(ms) = 1시간
+
+# Cloudflare R2 (S3 호환 스토리지)
+r2:
+  account-id: ${R2_ACCOUNT_ID}
+  access-key-id: ${R2_ACCESS_KEY_ID}
+  secret-access-key: ${R2_SECRET_ACCESS_KEY}
+  bucket: ${R2_BUCKET}
+  public-base-url: ${R2_PUBLIC_BASE_URL}   # 업로드된 객체를 읽을 공개 주소

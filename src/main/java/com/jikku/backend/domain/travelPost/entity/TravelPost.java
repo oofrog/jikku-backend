@@ -1,9 +1,6 @@
 package com.jikku.backend.domain.travelPost.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +12,12 @@ import lombok.NoArgsConstructor;
 public class TravelPost {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "travel_post_id")
   private Long travelPostId;
+
+  @Column(name = "member_id", nullable = false)
+  private Long memberId;
 
   @Column(nullable = false)
   private String title;
