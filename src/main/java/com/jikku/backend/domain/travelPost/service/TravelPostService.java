@@ -8,6 +8,10 @@ import com.jikku.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.jikku.backend.domain.map.dto.FillMapListResponse;
+import com.jikku.backend.domain.travelPost.dto.TravelPostResponse;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,4 +29,20 @@ public class TravelPostService {
 
     return TravelPostDetailResponse.from(travelPost);
   }
+
+  public FillMapListResponse<TravelPostResponse> getTravelPosts(
+    Integer sigunguCd,
+    LocalDate date
+  ) {
+    List<TravelPost> travelPosts = (date == null)
+      ? travelPostRepository.findByEmd_Sigungu_SigunguCdOrderByLogDateDescTravelPostIdDesc(sigunguCd)
+      : travelPostRepository.findByEmd_Sigungu_SigunguCdAndLogDateOrderByTravelPostIdDesc(sigunguCd, date);
+
+    return FillMapListResponse.from(
+      travelPosts.stream()
+        .map(TravelPostResponse::from)
+        .toList()
+    );
+  }
+
 }
