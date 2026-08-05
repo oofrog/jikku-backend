@@ -12,6 +12,8 @@ import com.jikku.backend.domain.map.dto.FillMapListResponse;
 import com.jikku.backend.domain.travelPost.dto.TravelPostResponse;
 import java.time.LocalDate;
 import java.util.List;
+import com.jikku.backend.domain.region.repository.SigunguRepository;
+import com.jikku.backend.domain.travelPost.dto.TravelPostSigunguResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import java.util.List;
 public class TravelPostService {
 
   private final TravelPostRepository travelPostRepository;
+  private final SigunguRepository sigunguRepository;
 
   public TravelPostDetailResponse getTravelPostDetail(Long travelPostId) {
     TravelPost travelPost = travelPostRepository.findById(travelPostId)
@@ -41,6 +44,14 @@ public class TravelPostService {
     return FillMapListResponse.from(
       travelPosts.stream()
         .map(TravelPostResponse::from)
+        .toList()
+    );
+  }
+
+  public FillMapListResponse<TravelPostSigunguResponse> getSigunguList() {
+    return FillMapListResponse.from(
+      sigunguRepository.findAllByOrderBySigunguNmAsc().stream()
+        .map(TravelPostSigunguResponse::from)
         .toList()
     );
   }

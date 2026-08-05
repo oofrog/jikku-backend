@@ -13,6 +13,7 @@ import com.jikku.backend.domain.travelPost.dto.TravelPostResponse;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
+import com.jikku.backend.domain.travelPost.dto.TravelPostSigunguResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +36,10 @@ public class TravelPostController {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
   ) {
     return ApiResponse.onSuccess(travelPostService.getTravelPosts(sigunguCd, date));
+  }
+
+  @GetMapping
+  public ApiResponse<FillMapListResponse<TravelPostSigunguResponse>> getSigunguList() {
+    return ApiResponse.onSuccess(travelPostService.getSigunguList());
   }
 }
