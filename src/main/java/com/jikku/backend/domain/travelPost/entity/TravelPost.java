@@ -1,6 +1,10 @@
 package com.jikku.backend.domain.travelPost.entity;
 
+import com.jikku.backend.domain.region.entity.Emd;
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,9 +23,19 @@ public class TravelPost {
   @Column(name = "member_id", nullable = false)
   private Long memberId;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "emd_id", nullable = false)
+  private Emd emd;
+
+  @Column(name = "log_date", nullable = false)
+  private LocalDate logDate;
+
   @Column(nullable = false)
   private String title;
 
   @Column(name = "first_image")
   private String firstImage;
+
+  @OneToMany(mappedBy = "travelPost")
+  private List<TravelPostBlock> blocks = new ArrayList<>();
 }
