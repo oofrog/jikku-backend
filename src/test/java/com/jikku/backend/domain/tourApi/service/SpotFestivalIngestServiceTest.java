@@ -11,13 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 
 @Disabled("적재 완료(관광지 1356 / 축제 55). 재적재 필요 시에만 이 줄 제거하고 수동 실행")
-// 다른 테스트와 달리 실제 Supabase·TourAPI에 붙는 적재 작업이다.
-// src/test/resources/application.yml이 더미 DB(localhost)를 가리키므로 여기서만 실제 접속 정보로 되돌린다.
-@SpringBootTest(properties = {
-        "spring.datasource.url=${DB_URL}",
-        "spring.datasource.username=${DB_USERNAME}",
-        "spring.datasource.password=${DB_PASSWORD}"
-})
+@SpringBootTest
 class SpotFestivalIngestServiceTest {
 
     @Autowired
