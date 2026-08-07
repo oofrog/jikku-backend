@@ -18,6 +18,14 @@ public record TourApiResponse<T>(Response<T> response) {
         return response.body().items().item();
     }
 
+    // 페이징 순회 종료 조건 판단용
+    public int totalCount() {
+        if (response == null || response.body() == null || response.body().totalCount() == null) {
+            return 0;
+        }
+        return response.body().totalCount();
+    }
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Response<T>(Header header, Body<T> body) {}
 
