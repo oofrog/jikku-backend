@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class FestivalRepository {
+public class FestivalRepository implements OverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -62,6 +62,29 @@ public class FestivalRepository {
 
     public int count() {
         Integer count = jdbcTemplate.queryForObject("SELECT count(*) FROM festival", Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    // 축제는 55건뿐이라 지역 우선순위 없이 임박한 순으로 채운다
+    @Override
+    public List<Long> findContentIdsWithoutOverview(int limit) {
+        return jdbcTemplate.queryForList("""
+                SELECT content_id FROM festival
+                WHERE overview IS NULL
+                ORDER BY event_start_date, content_id
+                LIMIT ?
+                """, Long.class, limit);
+    }
+
+    @Override
+    public void updateOverview(long contentId, String overview) {
+        jdbcTemplate.update("UPDATE festival SET overview = ? WHERE content_id = ?", overview, contentId);
+    }
+
+    @Override
+    public int countWithoutOverview() {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM festival WHERE overview IS NULL", Integer.class);
         return count == null ? 0 : count;
     }
 }

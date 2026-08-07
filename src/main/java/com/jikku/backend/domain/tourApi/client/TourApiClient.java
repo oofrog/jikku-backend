@@ -3,6 +3,7 @@ package com.jikku.backend.domain.tourApi.client;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+import com.jikku.backend.domain.tourApi.dto.DetailItem;
 import com.jikku.backend.domain.tourApi.dto.FestivalItem;
 import com.jikku.backend.domain.tourApi.dto.SpotItem;
 import com.jikku.backend.domain.tourApi.dto.VisitorDDItem;
@@ -117,6 +118,27 @@ public class TourApiClient {
                 .body(String.class);
 
         return parse(rawJson, new TypeReference<TourApiResponse<FestivalItem>>() {});
+    }
+
+    /**
+     * 관광지·축제 상세. 목록 오퍼레이션에 없는 overview를 얻는 유일한 경로이며 건당 1회 호출이 든다.
+     */
+    public TourApiResponse<DetailItem> getDetail(long contentId) {
+        String rawJson = restClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/KorService2/detailCommon2")
+                        .queryParam("serviceKey", serviceKey)
+                        .queryParam("numOfRows", 1)
+                        .queryParam("pageNo", 1)
+                        .queryParam("MobileOS", "ETC")
+                        .queryParam("MobileApp", mobileApp)
+                        .queryParam("contentId", contentId)
+                        .queryParam("_type", "json")
+                        .build())
+                .retrieve()
+                .body(String.class);
+
+        return parse(rawJson, new TypeReference<TourApiResponse<DetailItem>>() {});
     }
 
     private <T> TourApiResponse<T> parse(String rawJson, TypeReference<TourApiResponse<T>> type) {

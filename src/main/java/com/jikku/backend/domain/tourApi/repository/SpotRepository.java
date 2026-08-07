@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class SpotRepository {
+public class SpotRepository implements OverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -57,6 +57,37 @@ public class SpotRepository {
 
     public int count() {
         Integer count = jdbcTemplate.queryForObject("SELECT count(*) FROM spot", Integer.class);
+        return count == null ? 0 : count;
+    }
+
+    // 방문자 적은 시군구부터 채운다. 소외지역 추천에 먼저 노출될 대상이라 한도가 걸려도 화면이 빈 채로 남지 않는다.
+    private static final String WITHOUT_OVERVIEW_SQL = """
+            SELECT s.content_id
+            FROM spot s
+            JOIN (
+                SELECT sigungu_cd, avg(rank_asc) AS mean_rank
+                FROM region_visitor_summary
+                GROUP BY sigungu_cd
+            ) v ON v.sigungu_cd = s.sigungu_cd
+            WHERE s.overview IS NULL
+            ORDER BY v.mean_rank, s.content_id
+            LIMIT ?
+            """;
+
+    @Override
+    public List<Long> findContentIdsWithoutOverview(int limit) {
+        return jdbcTemplate.queryForList(WITHOUT_OVERVIEW_SQL, Long.class, limit);
+    }
+
+    @Override
+    public void updateOverview(long contentId, String overview) {
+        jdbcTemplate.update("UPDATE spot SET overview = ? WHERE content_id = ?", overview, contentId);
+    }
+
+    @Override
+    public int countWithoutOverview() {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM spot WHERE overview IS NULL", Integer.class);
         return count == null ? 0 : count;
     }
 }
