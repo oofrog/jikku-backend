@@ -64,6 +64,13 @@ public class SpotIngestService {
             }
         }
 
+        // 페이지 단위 catch가 DB 장애 같은 전면 실패까지 삼켜서 "0건 저장 완료"로 보이면
+        // 빈 테이블을 그대로 넘기게 된다. 한 건도 못 넣었으면 실패로 드러낸다.
+        if (saved == 0) {
+            throw new IllegalStateException(
+                    "관광지 적재 실패: 총 %d건 중 한 건도 저장되지 않았다".formatted(totalCount));
+        }
+
         log.info("===== 관광지 적재 완료: {}건 저장 (총 {}건) =====", saved, totalCount);
         return saved;
     }
