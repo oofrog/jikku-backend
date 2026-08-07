@@ -2,6 +2,11 @@ spring:
   application:
     name: jikku-backend
 
+  # .env를 properties로 읽어 아래 ${} 자리표시자를 채운다. 이게 없으면 IDE의 EnvFile 플러그인이나
+  # 셸 export에 의존하게 되어 터미널 실행이 깨진다. 배포 환경엔 .env 없이 진짜 환경변수만 있으므로 optional.
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}

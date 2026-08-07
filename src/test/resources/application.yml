@@ -2,6 +2,10 @@ spring:
   application:
     name: jikku-backend
 
+  # 테스트 설정은 main의 application.yml을 대체하므로(병합 아님) 여기에도 같이 둬야 한다
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
