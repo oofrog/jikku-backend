@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-@Disabled("축제 55건 완료, 관광지 845/1356 완료. 남은 511건은 다음 날 한도로 이어서 실행")
+@Disabled("전량 적재 완료(관광지 1356 / 축제 55). TourAPI 데이터 갱신분을 다시 받을 때만 실행")
 @SpringBootTest
 class OverviewIngestServiceTest {
 
