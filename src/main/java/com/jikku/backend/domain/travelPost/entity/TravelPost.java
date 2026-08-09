@@ -38,4 +38,20 @@ public class TravelPost {
 
   @OneToMany(mappedBy = "travelPost")
   private List<TravelPostBlock> blocks = new ArrayList<>();
+
+  public static TravelPost of(
+    Long memberId,
+    Emd emd,
+    LocalDate logDate,
+    String title,
+    String firstImage
+  ) {
+    TravelPost travelPost = new TravelPost();
+    travelPost.memberId = memberId;
+    travelPost.emd = emd;
+    travelPost.logDate = logDate;
+    travelPost.title = title;
+    travelPost.firstImage = firstImage;
+    return travelPost;
+  }
 }

@@ -14,6 +14,12 @@ import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jikku.backend.domain.travelPost.dto.TravelPostSigunguResponse;
+import com.jikku.backend.domain.travelPost.dto.TravelPostCreateRequest;
+import com.jikku.backend.domain.travelPost.dto.TravelPostCreateResponse;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,5 +47,13 @@ public class TravelPostController {
   @GetMapping
   public ApiResponse<FillMapListResponse<TravelPostSigunguResponse>> getSigunguList() {
     return ApiResponse.onSuccess(travelPostService.getSigunguList());
+  }
+
+  @PostMapping("/detail")
+  public ApiResponse<TravelPostCreateResponse> createTravelPost(
+    @AuthenticationPrincipal Long memberId,
+    @Valid @RequestBody TravelPostCreateRequest request
+  ) {
+    return ApiResponse.onSuccess(travelPostService.createTravelPost(memberId, request));
   }
 }
