@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +82,7 @@ public class TravelPostService {
 
     String firstImage = request.blocks().stream()
       .filter(block -> block.blockType() == BlockType.IMAGE)
+      .sorted(Comparator.comparing(TravelPostBlockCreateRequest::sortOrder))
       .map(TravelPostBlockCreateRequest::imgUrl)
       .findFirst()
       .orElse(null);
@@ -112,20 +114,36 @@ public class TravelPostService {
 
   private void validateBlocks(List<TravelPostBlockCreateRequest> blocks) {
     for (TravelPostBlockCreateRequest block : blocks) {
-      if (block.blockType() == BlockType.IMAGE &&
-        (block.imgUrl() == null || block.imgUrl().isBlank())) {
-        throw new BaseException(
-          GeneralErrorCode.INVALID_INPUT_VALUE,
-          "IMAGE 블록에는 imgUrl이 필요합니다."
-        );
+      if (block.blockType() == BlockType.IMAGE) {
+        if (block.imgUrl() == null || block.imgUrl().isBlank()) {
+          throw new BaseException(
+            GeneralErrorCode.INVALID_INPUT_VALUE,
+            "IMAGE 블록에는 imgUrl이 필요합니다."
+          );
+        }
+
+        if (block.textContent() != null && !block.textContent().isBlank()) {
+          throw new BaseException(
+            GeneralErrorCode.INVALID_INPUT_VALUE,
+            "IMAGE 블록에는 textContent를 넣을 수 없습니다."
+          );
+        }
       }
 
-      if (block.blockType() == BlockType.TEXT &&
-        (block.textContent() == null || block.textContent().isBlank())) {
-        throw new BaseException(
-          GeneralErrorCode.INVALID_INPUT_VALUE,
-          "TEXT 블록에는 textContent가 필요합니다."
-        );
+      if (block.blockType() == BlockType.TEXT) {
+        if (block.textContent() == null || block.textContent().isBlank()) {
+          throw new BaseException(
+            GeneralErrorCode.INVALID_INPUT_VALUE,
+            "TEXT 블록에는 textContent가 필요합니다."
+          );
+        }
+
+        if (block.imgUrl() != null && !block.imgUrl().isBlank()) {
+          throw new BaseException(
+            GeneralErrorCode.INVALID_INPUT_VALUE,
+            "TEXT 블록에는 imgUrl을 넣을 수 없습니다."
+          );
+        }
       }
     }
   }
