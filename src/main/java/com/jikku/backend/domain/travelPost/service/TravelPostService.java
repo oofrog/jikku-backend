@@ -18,7 +18,6 @@ import com.jikku.backend.domain.travelPost.repository.TravelPostRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -98,11 +97,6 @@ public class TravelPostService {
     String firstImage = request.blocks()
       .stream()
       .filter(block -> block.blockType() == BlockType.IMAGE)
-      .sorted(
-        Comparator.comparing(
-          TravelPostBlockCreateRequest::sortOrder
-        )
-      )
       .map(TravelPostBlockCreateRequest::imgUrl)
       .findFirst()
       .orElse(null);
