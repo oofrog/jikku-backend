@@ -3,7 +3,7 @@ package com.jikku.backend.domain.travelPost.dto;
 import com.jikku.backend.domain.travelPost.entity.TravelPostBlock;
 
 public record TravelPostBlockResponse(
-  Long travelLogBlockId,
+  Long travelPostBlockId,
   String blockType,
   Integer sortOrder,
   String textContent,
