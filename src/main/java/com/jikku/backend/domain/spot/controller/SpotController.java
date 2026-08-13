@@ -23,7 +23,7 @@ public class SpotController {
     private final SpotService spotService;
 
     @Operation(summary = "오늘의 관광지 추천",
-            description = "강원 전체에서 무작위 5개. 날짜를 시드로 써서 같은 날에는 결과가 같다. "
+            description = "강원 전체에서 무작위 10개. 날짜를 시드로 써서 같은 날에는 결과가 같다. "
                     + "대표 이미지가 없는 관광지는 후보에서 제외한다.")
     @GetMapping("/today")
     public ApiResponse<ContentListResponse<SpotSummaryResponse>> getTodaySpots() {

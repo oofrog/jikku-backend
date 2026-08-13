@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SpotService {
 
-    private static final int TODAY_COUNT = 5;
+    private static final int TODAY_COUNT = 10;
 
     private final SpotRepository spotRepository;
 

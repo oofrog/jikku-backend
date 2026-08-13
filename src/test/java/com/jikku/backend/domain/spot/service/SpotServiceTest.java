@@ -30,11 +30,11 @@ class SpotServiceTest {
     }
 
     @Test
-    @DisplayName("오늘의 추천은 5개이고 모두 대표 이미지가 있다")
+    @DisplayName("오늘의 추천은 10개이고 모두 대표 이미지가 있다")
     void todaySpotsAlwaysHaveImage() {
         List<SpotSummaryResponse> spots = spotService.getTodaySpots().content();
 
-        assertThat(spots).hasSize(5);
+        assertThat(spots).hasSize(10);
         assertThat(spots).allSatisfy(spot -> assertThat(spot.firstImage()).isNotBlank());
         assertThat(spots).extracting(SpotSummaryResponse::contentId).doesNotHaveDuplicates();
         assertThat(spots).allSatisfy(spot -> assertThat(spot.sigunguNm()).isNotBlank());
