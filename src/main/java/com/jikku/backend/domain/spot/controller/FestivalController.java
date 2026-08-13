@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 축제 조회 API. 경로가 /spots 아래인 것은 프론트 화면 구성을 따른 것으로, 데이터는 별도 festival 테이블이다.
+ * 축제 조회 API. 관광지와 대등한 리소스라 /spots 밑에 두지 않는다 (테이블도 contentId 체계도 별개).
+ * 패키지는 관광지와 DTO·에러코드를 공유해 domain/spot에 함께 둔다.
  */
 @Tag(name = "Festival", description = "축제 조회 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/spots/festivals")
+@RequestMapping("/festivals")
 public class FestivalController {
 
     private final FestivalService festivalService;
