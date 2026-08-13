@@ -15,26 +15,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * TourAPI 관광지(contentTypeId=12) 조회용 엔티티.
- * 적재는 tourApi 도메인이 JdbcTemplate으로 하고 여기서는 서빙만 한다(CLAUDE.md §2).
- * 그래서 setter도, 적재 시각(ingested_at) 매핑도 두지 않는다.
- * BaseTimeEntity도 상속하지 않는다 — 상속하면 ddl-auto=update가 운영 테이블에 created_at/updated_at을 실제로 추가한다.
+ * TourAPI 축제(contentTypeId=15) 조회용 엔티티. 서빙 전용인 이유는 {@link Spot} 주석 참고.
+ * 관광지와 컬럼이 겹치지만 상속으로 묶지 않는다 — 테이블이 분리돼 있고, 행사 기간이 축제에만 있다.
  */
 @Entity
 @Getter
-@Table(name = "spot")
+@Table(name = "festival")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Spot {
+public class Festival {
 
-    // TourAPI contentId를 그대로 PK로 쓴다(대리키 없음) → 값을 직접 넣으므로 @GeneratedValue 없음
     @Id
     @Column(name = "content_id")
     private Long contentId;
 
-    // DB에 spot_sigungu_cd_fkey가 이미 있어 Hibernate가 같은 FK를 하나 더 만들지 않도록 막는다
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sigungu_cd", nullable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -52,7 +49,6 @@ public class Spot {
     @Column(name = "map_y", precision = 16, scale = 12)
     private BigDecimal mapY;
 
-    // 1,356건 중 164건이 비어 있다. 응답 계층에서 기본 이미지로 대체한다.
     @Column(name = "first_image", columnDefinition = "text")
     private String firstImage;
 
@@ -65,9 +61,15 @@ public class Spot {
     @Column(name = "lcls_systm3", columnDefinition = "text")
     private String lclsSystm3;
 
-    // NULL은 "아직 상세조회 안 함", ''은 "조회했으나 내용 없음". 적재 재개 로직이 이 구분에 의존한다.
     @Column(name = "overview", columnDefinition = "text")
     private String overview;
+
+    // 행사 기간은 searchFestival2에만 있어 areaBasedList2로는 못 채운다(CLAUDE.md §4.1)
+    @Column(name = "event_start_date", nullable = false)
+    private LocalDate eventStartDate;
+
+    @Column(name = "event_end_date")
+    private LocalDate eventEndDate;
 
     @Column(name = "modified_time")
     private LocalDateTime modifiedTime;
