@@ -8,6 +8,8 @@ import com.jikku.backend.domain.tourApi.dto.FestivalItem;
 import com.jikku.backend.domain.tourApi.dto.SpotItem;
 import com.jikku.backend.domain.tourApi.dto.VisitorDDItem;
 import com.jikku.backend.domain.tourApi.dto.TourApiResponse;
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
+import com.jikku.backend.global.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,13 @@ public class TourApiClient {
 
     // 페이지를 나눠 도는 동안 정렬이 흔들리면 경계에서 누락이 생기므로 고정한다 (C=수정일순)
     private static final String ARRANGE_MODIFIED = "C";
+
+    // TourAPI가 허용하는 한 페이지 최대 건수. 0이나 음수가 들어오면 호출부의 페이지 수 계산이 깨진다.
+    private static final int MAX_NUM_OF_ROWS = 1000;
+
+    // 결과 0건이면 items가 객체가 아니라 ""로 와서 정상 응답도 파싱에 실패한다.
+    // 이때만 응답에 성공 코드가 실려 오므로, 이걸로 "정상 0건"과 "호출 실패"를 가른다.
+    private static final String RESULT_CODE_OK = "\"resultCode\":\"0000\"";
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -76,6 +85,8 @@ public class TourApiClient {
      * @param numOfRows 한 번에 받을 행 수 (최대 1000)
      */
     public TourApiResponse<SpotItem> getSpots(int pageNo, int numOfRows) {
+        validateNumOfRows(numOfRows);
+
         String rawJson = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/KorService2/areaBasedList2")
@@ -101,6 +112,8 @@ public class TourApiClient {
      * @param eventStartYmd 이 날짜 이후 시작하는 축제만 "yyyyMMdd"
      */
     public TourApiResponse<FestivalItem> getFestivals(String eventStartYmd, int pageNo, int numOfRows) {
+        validateNumOfRows(numOfRows);
+
         String rawJson = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/KorService2/searchFestival2")
@@ -141,14 +154,26 @@ public class TourApiClient {
         return parse(rawJson, new TypeReference<TourApiResponse<DetailItem>>() {});
     }
 
+    private void validateNumOfRows(int numOfRows) {
+        if (numOfRows < 1 || numOfRows > MAX_NUM_OF_ROWS) {
+            throw new IllegalArgumentException(
+                    "numOfRows는 1~%d 사이여야 한다: %d".formatted(MAX_NUM_OF_ROWS, numOfRows));
+        }
+    }
+
     private <T> TourApiResponse<T> parse(String rawJson, TypeReference<TourApiResponse<T>> type) {
         try {
             return objectMapper.readValue(rawJson, type);
         } catch (JacksonException e) {
-            // 인증키 오류 시 JSON이 아닌 응답(XML/HTML)이, 결과 0건이면 items가 객체 대신 ""로 와서
-            // 둘 다 여기로 떨어진다. 원인 구분이 필요하므로 원본을 남긴다.
+            if (rawJson != null && rawJson.replace(" ", "").contains(RESULT_CODE_OK)) {
+                log.info("TourAPI 결과 0건");
+                return new TourApiResponse<>(null);
+            }
+
+            // 인증키 오류면 JSON이 아닌 응답(XML/HTML)이 온다. 빈 응답으로 넘기면 "0건 정상 적재"로
+            // 보여서 빈 테이블을 그대로 넘기게 되므로 실패로 드러낸다.
             log.error("TourAPI 응답 파싱 실패. 원본 응답=\n{}", rawJson, e);
-            return new TourApiResponse<>(null);
+            throw new BaseException(GeneralErrorCode.EXTERNAL_API_ERROR);
         }
     }
 }
