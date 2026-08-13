@@ -20,7 +20,7 @@ class JwtTokenProviderTest {
     void accessTokenRoundTrip() {
         String token = provider.createAccessToken(42L);
 
-        assertThat(provider.validateToken(token)).isTrue();
+        assertThat(provider.checkAccessToken(token)).isEqualTo(AccessTokenStatus.VALID);
         assertThat(provider.getMemberId(token)).isEqualTo(42L);
     }
 
@@ -30,7 +30,24 @@ class JwtTokenProviderTest {
         String refreshToken = provider.createRefreshToken(42L);
 
         // 같은 키로 서명돼 서명 검증만으로는 통과하므로, 용도(typ) 구분이 실제로 막고 있는지 확인한다
-        assertThat(provider.validateToken(refreshToken)).isFalse();
+        assertThat(provider.checkAccessToken(refreshToken)).isEqualTo(AccessTokenStatus.INVALID);
+    }
+
+    @Test
+    @DisplayName("만료된 Access 토큰은 위조와 구분된다 (재발급 대상)")
+    void expiredAccessTokenIsDistinguished() {
+        String expired = new JwtTokenProvider(SECRET, -1000L, FOURTEEN_DAYS).createAccessToken(42L);
+
+        assertThat(provider.checkAccessToken(expired)).isEqualTo(AccessTokenStatus.EXPIRED);
+    }
+
+    @Test
+    @DisplayName("만료된 Refresh 토큰을 Access 자리에 쓰면 만료가 아니라 무효로 본다")
+    void expiredRefreshTokenIsInvalidNotExpired() {
+        String expiredRefresh = new JwtTokenProvider(SECRET, ONE_HOUR, -1000L).createRefreshToken(42L);
+
+        // EXPIRED로 답하면 클라이언트가 재발급을 시도하다 계속 실패한다
+        assertThat(provider.checkAccessToken(expiredRefresh)).isEqualTo(AccessTokenStatus.INVALID);
     }
 
     @Test
@@ -55,7 +72,7 @@ class JwtTokenProviderTest {
                 "another-secret-key-that-is-also-long-enough-32bytes", ONE_HOUR, FOURTEEN_DAYS)
                 .createRefreshToken(42L);
 
-        assertThat(provider.validateToken(forged)).isFalse();
+        assertThat(provider.checkAccessToken(forged)).isEqualTo(AccessTokenStatus.INVALID);
         assertThatThrownBy(() -> provider.getMemberIdFromRefreshToken(forged))
                 .isInstanceOf(BaseException.class);
     }

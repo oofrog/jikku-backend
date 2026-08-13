@@ -61,16 +61,26 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 위조·만료·형식오류·용도불일치는 모두 유효하지 않은 토큰(false)으로 취급
-    public boolean validateToken(String token) {
+    public AccessTokenStatus checkAccessToken(String token) {
+        Claims claims;
         try {
-            return TYPE_ACCESS.equals(parseClaims(token).get(CLAIM_TYPE, String.class));
+            claims = parseClaims(token);
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰도 클레임은 읽을 수 있다. Refresh 토큰을 Access 자리에 쓴 경우까지
+            // "만료됐으니 재발급하라"고 안내하면 클라이언트가 헛돌기 때문에 용도를 먼저 본다.
+            return isAccessToken(e.getClaims()) ? AccessTokenStatus.EXPIRED : AccessTokenStatus.INVALID;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return AccessTokenStatus.INVALID;
         }
+
+        return isAccessToken(claims) ? AccessTokenStatus.VALID : AccessTokenStatus.INVALID;
     }
 
-    // validateToken 통과 후 호출 전제
+    private boolean isAccessToken(Claims claims) {
+        return TYPE_ACCESS.equals(claims.get(CLAIM_TYPE, String.class));
+    }
+
+    // checkAccessToken이 VALID를 준 뒤 호출 전제
     public Long getMemberId(String token) {
         return Long.valueOf(parseClaims(token).getSubject());
     }

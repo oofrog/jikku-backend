@@ -1,5 +1,6 @@
 package com.jikku.backend.global.security;
 
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +34,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            Long memberId = jwtTokenProvider.getMemberId(token);
-            // principal=memberId, 권한 없음. 3-인자 생성자라 인증됨 상태로 만들어진다.
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    memberId, null, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token != null) {
+            switch (jwtTokenProvider.checkAccessToken(token)) {
+                case VALID -> {
+                    Long memberId = jwtTokenProvider.getMemberId(token);
+                    // principal=memberId, 권한 없음. 3-인자 생성자라 인증됨 상태로 만들어진다.
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            memberId, null, Collections.emptyList());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+                // 여기서 401을 직접 쓰지 않고 사유만 남긴다. 응답은 EntryPoint가 한곳에서 만든다.
+                case EXPIRED -> request.setAttribute(
+                        RestAuthenticationEntryPoint.AUTH_ERROR_CODE, GeneralErrorCode.EXPIRED_TOKEN);
+                case INVALID -> request.setAttribute(
+                        RestAuthenticationEntryPoint.AUTH_ERROR_CODE, GeneralErrorCode.INVALID_TOKEN);
+            }
         }
 
         filterChain.doFilter(request, response);
