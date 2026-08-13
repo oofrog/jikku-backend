@@ -3,12 +3,12 @@ package com.jikku.backend.domain.region.service;
 import com.jikku.backend.domain.region.dto.UnderservedRegionListResponse;
 import com.jikku.backend.domain.region.dto.UnderservedRegionResponse;
 import com.jikku.backend.domain.region.repository.RegionVisitorSummaryRepository;
+import com.jikku.backend.global.util.ServiceTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class UnderservedRegionService {
      */
     @Transactional(readOnly = true)
     public UnderservedRegionListResponse getUnderservedRegions() {
-        int month = LocalDate.now().getMonthValue();
+        int month = ServiceTime.today().getMonthValue();
 
         return UnderservedRegionListResponse.of(
                 month,

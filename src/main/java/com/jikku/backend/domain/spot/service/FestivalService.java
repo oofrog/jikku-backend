@@ -6,11 +6,11 @@ import com.jikku.backend.domain.spot.dto.FestivalSummaryResponse;
 import com.jikku.backend.domain.spot.enums.SpotErrorCode;
 import com.jikku.backend.domain.spot.repository.FestivalRepository;
 import com.jikku.backend.global.exception.BaseException;
+import com.jikku.backend.global.util.ServiceTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class FestivalService {
     @Transactional(readOnly = true)
     public ContentListResponse<FestivalSummaryResponse> getFestivals() {
         return ContentListResponse.from(
-                festivalRepository.findNotEndedOrderByStartDate(LocalDate.now()).stream()
+                festivalRepository.findNotEndedOrderByStartDate(ServiceTime.today()).stream()
                         .map(FestivalSummaryResponse::from)
                         .toList()
         );

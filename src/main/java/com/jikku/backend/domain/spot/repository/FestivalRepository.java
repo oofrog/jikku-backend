@@ -15,11 +15,10 @@ import java.util.Optional;
  */
 public interface FestivalRepository extends JpaRepository<Festival, Long> {
 
-    // 종료일이 없는 축제는 언제 끝나는지 모르는 것이라 제외하지 않는다 (현재 데이터엔 없지만 재적재로 생길 수 있다)
     @Query("""
             SELECT f FROM Festival f
             JOIN FETCH f.sigungu
-            WHERE f.eventEndDate IS NULL OR f.eventEndDate >= :today
+            WHERE f.eventEndDate >= :today
             ORDER BY f.eventStartDate ASC, f.contentId ASC
             """)
     List<Festival> findNotEndedOrderByStartDate(@Param("today") LocalDate today);

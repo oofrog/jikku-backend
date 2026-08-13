@@ -7,11 +7,11 @@ import com.jikku.backend.domain.spot.entity.Spot;
 import com.jikku.backend.domain.spot.enums.SpotErrorCode;
 import com.jikku.backend.domain.spot.repository.SpotRepository;
 import com.jikku.backend.global.exception.BaseException;
+import com.jikku.backend.global.util.ServiceTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ public class SpotService {
     @Transactional(readOnly = true)
     public ContentListResponse<SpotSummaryResponse> getTodaySpots() {
         List<Long> candidates = new ArrayList<>(spotRepository.findContentIdsWithImage());
-        Collections.shuffle(candidates, new Random(LocalDate.now().toEpochDay()));
+        Collections.shuffle(candidates, new Random(ServiceTime.today().toEpochDay()));
 
         List<Long> picked = candidates.subList(0, Math.min(TODAY_COUNT, candidates.size()));
 
