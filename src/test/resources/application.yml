@@ -36,6 +36,10 @@ jwt:
   secret: ${JWT_SECRET}                # HS256 서명키. 최소 32바이트(256bit) 이상이어야 함
   access-expiration: 259200000         # Access 토큰 만료(ms) = 3일 (main과 동일)
 
+# 개발용 로그인 보호키 (main과 동일. 비어 있으면 거부)
+dev-login:
+  key: ${DEV_LOGIN_KEY:}
+
 # Cloudflare R2 (S3 호환 스토리지)
 r2:
   account-id: ${R2_ACCOUNT_ID}
