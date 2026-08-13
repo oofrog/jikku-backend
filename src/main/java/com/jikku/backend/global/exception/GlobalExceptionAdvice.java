@@ -39,8 +39,9 @@ public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ApiResponse<Void>> handleBaseException(BaseException e) {
         log.warn("BaseException: {}", e.getMessage());
         BaseErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity.status(errorCode.getStatus())
-                .body(ApiResponse.onFailure(errorCode));
+      return ResponseEntity
+        .status(errorCode.getStatus())
+        .body(ApiResponse.onFailure(errorCode, e.getMessage()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

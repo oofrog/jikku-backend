@@ -43,4 +43,20 @@ public class TravelPostBlock extends BaseTimeEntity {
     @JoinColumn(name="travel_post_id",nullable = false)
     private TravelPost travelPost;
 
+  public static TravelPostBlock of(
+    TravelPost travelPost,
+    BlockType blockType,
+    Integer sortOrder,
+    String text,
+    String imgUrl
+  ) {
+    TravelPostBlock block = new TravelPostBlock();
+    block.travelPost = travelPost;
+    block.blockType = blockType;
+    block.sortOrder = sortOrder;
+    block.text = text;
+    block.imgUrl = imgUrl;
+    return block;
+  }
+
 }
