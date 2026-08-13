@@ -35,7 +35,9 @@ tour-api:
 # JWT (자체 토큰). secret은 코드에 하드코딩 금지 → 환경변수 (CLAUDE.md §1-4)
 jwt:
   secret: ${JWT_SECRET}                # HS256 서명키. 최소 32바이트(256bit) 이상이어야 함
-  access-expiration: 259200000         # Access 토큰 만료(ms) = 3일.
+  access-expiration: 3600000           # Access 토큰 만료(ms) = 1시간
+  refresh-expiration: 1209600000       # Refresh 토큰 만료(ms) = 14일. 서버에 저장하지 않아 만료 전엔
+                                       # 무효화할 수단이 없으므로 무한정 길게 잡지 않는다
 
 # 개발용 로그인(POST /auth/dev-login) 보호키. 비어 있으면 해당 요청을 전부 거부한다(fail-closed).
 dev-login:

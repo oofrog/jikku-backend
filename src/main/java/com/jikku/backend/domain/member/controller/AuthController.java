@@ -1,13 +1,16 @@
 package com.jikku.backend.domain.member.controller;
 
+import com.jikku.backend.domain.member.dto.ReissueRequest;
 import com.jikku.backend.domain.member.dto.TokenResponse;
 import com.jikku.backend.domain.member.service.AuthService;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,5 +34,13 @@ public class AuthController {
             @Parameter(description = "개발용 로그인 보호키", required = true)
             @RequestHeader(value = "X-Dev-Key", required = false) String devKey) {
         return ApiResponse.onSuccess(authService.devLogin(devKey));
+    }
+
+    @Operation(summary = "토큰 재발급",
+            description = "Refresh 토큰으로 Access·Refresh 토큰을 다시 발급한다. "
+                    + "Refresh 토큰이 만료됐으면 AUTH401_3으로 응답하며, 이 경우 다시 로그인해야 한다.")
+    @PostMapping("/reissue")
+    public ApiResponse<TokenResponse> reissue(@Valid @RequestBody ReissueRequest request) {
+        return ApiResponse.onSuccess(authService.reissue(request.refreshToken()));
     }
 }

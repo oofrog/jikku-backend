@@ -4,6 +4,8 @@ import com.jikku.backend.domain.member.dto.TokenResponse;
 import com.jikku.backend.domain.member.entity.Member;
 import com.jikku.backend.domain.member.enums.SocialLogin;
 import com.jikku.backend.domain.member.repository.MemberRepository;
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
+import com.jikku.backend.global.exception.BaseException;
 import com.jikku.backend.global.security.DevLoginKeyVerifier;
 import com.jikku.backend.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +40,29 @@ public class AuthService {
                 .findBySocialLoginAndSocialUid(DEV_SOCIAL_LOGIN, DEV_SOCIAL_UID)
                 .orElseGet(this::createDevMember);
 
-        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberId());
-        return TokenResponse.bearer(accessToken);
+        return issueTokens(member.getMemberId());
+    }
+
+    /**
+     * Refresh 토큰으로 토큰 쌍을 재발급한다.
+     * 서버에 저장하지 않는 방식이라 이전 Refresh 토큰은 만료 전까지 계속 유효하다 — 회전은 되지 않는다.
+     */
+    @Transactional(readOnly = true)
+    public TokenResponse reissue(String refreshToken) {
+        Long memberId = jwtTokenProvider.getMemberIdFromRefreshToken(refreshToken);
+
+        // 서명이 유효해도 탈퇴 등으로 회원이 사라졌을 수 있다
+        if (!memberRepository.existsById(memberId)) {
+            throw new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        return issueTokens(memberId);
+    }
+
+    private TokenResponse issueTokens(Long memberId) {
+        return TokenResponse.bearer(
+                jwtTokenProvider.createAccessToken(memberId),
+                jwtTokenProvider.createRefreshToken(memberId));
     }
 
     // 테스트 회원이 아직 없으면 생성해 저장한다.
