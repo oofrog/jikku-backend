@@ -1,4 +1,4 @@
-package com.jikku.backend.domain.spot.enums;
+package com.jikku.backend.domain.spot.exception;
 
 import com.jikku.backend.global.apiPayload.code.BaseErrorCode;
 import lombok.Getter;

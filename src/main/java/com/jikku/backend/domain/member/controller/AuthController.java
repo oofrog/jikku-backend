@@ -28,7 +28,7 @@ public class AuthController {
 
     @Operation(summary = "개발용 로그인",
             description = "카카오 없이 고정 테스트 회원의 Access 토큰을 발급한다. (개발 전용) "
-                    + "X-Dev-Key 헤더에 보호키가 필요하며, 서버에 키가 설정돼 있지 않으면 항상 거부한다.")
+                    + "X-Dev-Key 헤더에 보호키가 필요하다. 키가 틀리거나 서버에 설정돼 있지 않으면 AUTH401_6.")
     @PostMapping("/dev-login")
     public ApiResponse<TokenResponse> devLogin(
             @Parameter(description = "개발용 로그인 보호키", required = true)

@@ -6,8 +6,9 @@ import java.util.List;
 public interface OverviewRepository {
 
     /**
-     * 아직 overview를 받지 않은 대상을 방문자 적은 시군구부터 돌려준다.
-     * 일 호출 한도가 있어 전량을 한 번에 못 채우므로, 추천에 먼저 노출될 지역을 앞세운다.
+     * 아직 overview를 받지 않은 대상을 우선순위가 높은 것부터 돌려준다.
+     * 일 호출 한도가 있어 전량을 한 번에 못 채우므로 순서가 중요하다.
+     * 무엇을 먼저 채울지는 구현마다 다르다 — 각 리포지토리의 쿼리 주석 참고.
      */
     List<Long> findContentIdsWithoutOverview(int limit);
 

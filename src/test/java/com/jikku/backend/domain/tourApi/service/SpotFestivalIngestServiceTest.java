@@ -35,7 +35,7 @@ class SpotFestivalIngestServiceTest {
     }
 
     @Test
-    @DisplayName("올해 시작하는 강원 축제를 적재한다 (54건)")
+    @DisplayName("올해 시작하는 강원 축제를 적재한다 (55건)")
     void ingestFestivals() {
         int saved = festivalIngestService.ingestFrom(LocalDate.of(2026, 1, 1), 100);
 
