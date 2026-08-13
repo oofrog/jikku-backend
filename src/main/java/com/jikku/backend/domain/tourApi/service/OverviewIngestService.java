@@ -3,9 +3,9 @@ package com.jikku.backend.domain.tourApi.service;
 import com.jikku.backend.domain.tourApi.client.TourApiClient;
 import com.jikku.backend.domain.tourApi.dto.DetailItem;
 import com.jikku.backend.domain.tourApi.dto.TourApiResponse;
-import com.jikku.backend.domain.tourApi.repository.FestivalRepository;
+import com.jikku.backend.domain.tourApi.repository.FestivalIngestRepository;
 import com.jikku.backend.domain.tourApi.repository.OverviewRepository;
-import com.jikku.backend.domain.tourApi.repository.SpotRepository;
+import com.jikku.backend.domain.tourApi.repository.SpotIngestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +23,12 @@ public class OverviewIngestService {
     private static final long CALL_INTERVAL_MS = 300;
 
     private final TourApiClient tourApiClient;
-    private final SpotRepository spotRepository;
-    private final FestivalRepository festivalRepository;
+    private final SpotIngestRepository spotRepository;
+    private final FestivalIngestRepository festivalRepository;
 
     public OverviewIngestService(TourApiClient tourApiClient,
-                                 SpotRepository spotRepository,
-                                 FestivalRepository festivalRepository) {
+                                 SpotIngestRepository spotRepository,
+                                 FestivalIngestRepository festivalRepository) {
         this.tourApiClient = tourApiClient;
         this.spotRepository = spotRepository;
         this.festivalRepository = festivalRepository;

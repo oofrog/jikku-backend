@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class SpotRepository implements OverviewRepository {
+public class SpotIngestRepository implements OverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,7 +31,7 @@ public class SpotRepository implements OverviewRepository {
                 ingested_at   = now()
             """;
 
-    public SpotRepository(JdbcTemplate jdbcTemplate) {
+    public SpotIngestRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

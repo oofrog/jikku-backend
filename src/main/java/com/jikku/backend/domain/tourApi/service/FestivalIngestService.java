@@ -3,7 +3,7 @@ package com.jikku.backend.domain.tourApi.service;
 import com.jikku.backend.domain.tourApi.client.TourApiClient;
 import com.jikku.backend.domain.tourApi.dto.FestivalItem;
 import com.jikku.backend.domain.tourApi.dto.TourApiResponse;
-import com.jikku.backend.domain.tourApi.repository.FestivalRepository;
+import com.jikku.backend.domain.tourApi.repository.FestivalIngestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -20,9 +20,9 @@ public class FestivalIngestService {
     private static final DateTimeFormatter YMD = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final TourApiClient tourApiClient;
-    private final FestivalRepository festivalRepository;
+    private final FestivalIngestRepository festivalRepository;
 
-    public FestivalIngestService(TourApiClient tourApiClient, FestivalRepository festivalRepository) {
+    public FestivalIngestService(TourApiClient tourApiClient, FestivalIngestRepository festivalRepository) {
         this.tourApiClient = tourApiClient;
         this.festivalRepository = festivalRepository;
     }

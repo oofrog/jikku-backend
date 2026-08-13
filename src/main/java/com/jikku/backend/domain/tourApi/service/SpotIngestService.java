@@ -3,7 +3,7 @@ package com.jikku.backend.domain.tourApi.service;
 import com.jikku.backend.domain.tourApi.client.TourApiClient;
 import com.jikku.backend.domain.tourApi.dto.SpotItem;
 import com.jikku.backend.domain.tourApi.dto.TourApiResponse;
-import com.jikku.backend.domain.tourApi.repository.SpotRepository;
+import com.jikku.backend.domain.tourApi.repository.SpotIngestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -17,9 +17,9 @@ public class SpotIngestService {
     private static final long CALL_INTERVAL_MS = 300;
 
     private final TourApiClient tourApiClient;
-    private final SpotRepository spotRepository;
+    private final SpotIngestRepository spotRepository;
 
-    public SpotIngestService(TourApiClient tourApiClient, SpotRepository spotRepository) {
+    public SpotIngestService(TourApiClient tourApiClient, SpotIngestRepository spotRepository) {
         this.tourApiClient = tourApiClient;
         this.spotRepository = spotRepository;
     }

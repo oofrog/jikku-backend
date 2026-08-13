@@ -1,7 +1,7 @@
 package com.jikku.backend.domain.tourApi.service;
 
-import com.jikku.backend.domain.tourApi.repository.FestivalRepository;
-import com.jikku.backend.domain.tourApi.repository.SpotRepository;
+import com.jikku.backend.domain.tourApi.repository.FestivalIngestRepository;
+import com.jikku.backend.domain.tourApi.repository.SpotIngestRepository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +15,10 @@ class OverviewIngestServiceTest {
     OverviewIngestService overviewIngestService;
 
     @Autowired
-    SpotRepository spotRepository;
+    SpotIngestRepository spotRepository;
 
     @Autowired
-    FestivalRepository festivalRepository;
+    FestivalIngestRepository festivalRepository;
 
     @Test
     @DisplayName("남은 한도만큼 overview를 채운다 (축제 우선 → 관광지는 방문자 적은 시군구 순)")

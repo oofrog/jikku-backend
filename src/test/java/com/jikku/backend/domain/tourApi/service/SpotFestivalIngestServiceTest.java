@@ -1,7 +1,7 @@
 package com.jikku.backend.domain.tourApi.service;
 
-import com.jikku.backend.domain.tourApi.repository.FestivalRepository;
-import com.jikku.backend.domain.tourApi.repository.SpotRepository;
+import com.jikku.backend.domain.tourApi.repository.FestivalIngestRepository;
+import com.jikku.backend.domain.tourApi.repository.SpotIngestRepository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,10 @@ class SpotFestivalIngestServiceTest {
     FestivalIngestService festivalIngestService;
 
     @Autowired
-    SpotRepository spotRepository;
+    SpotIngestRepository spotRepository;
 
     @Autowired
-    FestivalRepository festivalRepository;
+    FestivalIngestRepository festivalRepository;
 
     @Test
     @DisplayName("강원 관광지 전체를 적재한다 (1,356건 / 1000건씩 2페이지)")

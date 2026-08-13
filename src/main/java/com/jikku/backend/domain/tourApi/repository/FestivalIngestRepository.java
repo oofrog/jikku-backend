@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class FestivalRepository implements OverviewRepository {
+public class FestivalIngestRepository implements OverviewRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -34,7 +34,7 @@ public class FestivalRepository implements OverviewRepository {
                 ingested_at      = now()
             """;
 
-    public FestivalRepository(JdbcTemplate jdbcTemplate) {
+    public FestivalIngestRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
