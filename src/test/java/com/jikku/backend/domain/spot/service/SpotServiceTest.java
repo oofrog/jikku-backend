@@ -1,7 +1,7 @@
 package com.jikku.backend.domain.spot.service;
 
 import com.jikku.backend.domain.spot.dto.SpotSummaryResponse;
-import com.jikku.backend.domain.spot.enums.SpotErrorCode;
+import com.jikku.backend.domain.spot.exception.SpotErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

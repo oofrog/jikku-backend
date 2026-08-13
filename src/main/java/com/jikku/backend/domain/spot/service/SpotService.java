@@ -4,7 +4,7 @@ import com.jikku.backend.domain.spot.dto.ContentListResponse;
 import com.jikku.backend.domain.spot.dto.SpotDetailResponse;
 import com.jikku.backend.domain.spot.dto.SpotSummaryResponse;
 import com.jikku.backend.domain.spot.entity.Spot;
-import com.jikku.backend.domain.spot.enums.SpotErrorCode;
+import com.jikku.backend.domain.spot.exception.SpotErrorCode;
 import com.jikku.backend.domain.spot.repository.SpotRepository;
 import com.jikku.backend.global.exception.BaseException;
 import com.jikku.backend.global.util.ServiceTime;

@@ -3,7 +3,7 @@ package com.jikku.backend.domain.spot.service;
 import com.jikku.backend.domain.spot.dto.ContentListResponse;
 import com.jikku.backend.domain.spot.dto.FestivalDetailResponse;
 import com.jikku.backend.domain.spot.dto.FestivalSummaryResponse;
-import com.jikku.backend.domain.spot.enums.SpotErrorCode;
+import com.jikku.backend.domain.spot.exception.SpotErrorCode;
 import com.jikku.backend.domain.spot.repository.FestivalRepository;
 import com.jikku.backend.global.exception.BaseException;
 import com.jikku.backend.global.util.ServiceTime;
