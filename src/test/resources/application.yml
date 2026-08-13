@@ -1,26 +1,50 @@
-# 테스트 전용 설정. 클래스패스 우선순위상 main 의 application.yml 을 통째로 가리므로
-# 애플리케이션이 기동하는 데 필요한 값을 전부 여기에 다시 둔다.
-# 목적은 실제 Supabase·TourAPI 에 붙지 않고 컨텍스트만 띄우는 것이라 값은 모두 더미다.
 spring:
+  application:
+    name: jikku-backend
+
+  # 테스트 설정은 main의 application.yml을 대체하므로(병합 아님) 여기에도 같이 둬야 한다
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/jikku-test
-    username: test
-    password: test
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: none        # 스키마 생성을 시도하면 실제 접속이 필요해진다
+      ddl-auto: update          # 엔티티에서 스키마 자동 생성, 기존 데이터는 안 건드림 (CLAUDE.md §2)
+    show-sql: true              # 실행 SQL 콘솔 출력 (개발 편의)
     properties:
       hibernate:
-        # dialect 를 명시하지 않으면 Hibernate 가 JDBC 메타데이터를 읽으려 접속한다
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true        # SQL 보기 좋게 포맷팅
 
+  servlet:
+    multipart:
+      max-file-size: 10MB       # ImageService의 검증값과 동일. 초과분은 컨트롤러 도달 전에 톰캣이 끊는다
+      max-request-size: 12MB    # 파일 + 나머지 파트 합계
+
+# TourAPI
 tour-api:
+  service-key: ${TOUR_API_SERVICE_KEY}
+  mobile-app: ${TOUR_API_MOBILE_APP}
   base-url: https://apis.data.go.kr/B551011
-  service-key: test-service-key
-  mobile-app: jikku-test
 
+# JWT (자체 토큰). secret은 코드에 하드코딩 금지 → 환경변수 (CLAUDE.md §1-4)
 jwt:
-  secret: test-only-secret-not-used-for-real-signing-0123456789   # HS256 최소 32바이트
-  access-expiration: 3600000
+  secret: ${JWT_SECRET}                # HS256 서명키. 최소 32바이트(256bit) 이상이어야 함
+  access-expiration: 3600000           # Access 토큰 만료(ms) = 1시간 (main과 동일)
+  refresh-expiration: 1209600000       # Refresh 토큰 만료(ms) = 14일
+
+# 개발용 로그인 보호키 (main과 동일. 비어 있으면 거부)
+dev-login:
+  key: ${DEV_LOGIN_KEY:}
+
+# Cloudflare R2 (S3 호환 스토리지)
+r2:
+  account-id: ${R2_ACCOUNT_ID}
+  access-key-id: ${R2_ACCESS_KEY_ID}
+  secret-access-key: ${R2_SECRET_ACCESS_KEY}
+  bucket: ${R2_BUCKET}
+  public-base-url: ${R2_PUBLIC_BASE_URL}   # 업로드된 객체를 읽을 공개 주소

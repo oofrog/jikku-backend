@@ -2,6 +2,11 @@ spring:
   application:
     name: jikku-backend
 
+  # .env를 properties로 읽어 아래 ${} 자리표시자를 채운다. 이게 없으면 IDE의 EnvFile 플러그인이나
+  # 셸 export에 의존하게 되어 터미널 실행이 깨진다. 배포 환경엔 .env 없이 진짜 환경변수만 있으므로 optional.
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -31,6 +36,12 @@ tour-api:
 jwt:
   secret: ${JWT_SECRET}                # HS256 서명키. 최소 32바이트(256bit) 이상이어야 함
   access-expiration: 3600000           # Access 토큰 만료(ms) = 1시간
+  refresh-expiration: 1209600000       # Refresh 토큰 만료(ms) = 14일. 서버에 저장하지 않아 만료 전엔
+                                       # 무효화할 수단이 없으므로 무한정 길게 잡지 않는다
+
+# 개발용 로그인(POST /auth/dev-login) 보호키. 비어 있으면 해당 요청을 전부 거부한다(fail-closed).
+dev-login:
+  key: ${DEV_LOGIN_KEY:}
 
 # Cloudflare R2 (S3 호환 스토리지)
 r2:
