@@ -12,6 +12,8 @@ import com.jikku.backend.domain.region.repository.EmdRepository;
 import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
+import com.jikku.backend.domain.map.dto.EmdFillUpdateRequest;
+import com.jikku.backend.domain.map.enums.FillType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,11 +33,65 @@ public class EmdFillService {
       .orElseThrow(() -> new BaseException(GeneralErrorCode.ENTITY_NOT_FOUND, "존재하지 않는 시군구 코드입니다."));
 
     return FillMapListResponse.from(
-      fillMapRepository.findByMemberIdAndMapTypeAndSigungu_SigunguCd(memberId, MapType.EMD, sigungu.getSigunguCd())
+      fillMapRepository.findAllByMemberIdAndMapTypeAndSigungu_SigunguCd(
+          memberId, MapType.EMD, sigungu.getSigunguCd()
+        )
         .stream()
         .map(EmdFillResponse::from)
         .toList()
     );
+  }
+
+  @Transactional
+  public EmdFillResponse updateEmdFillMap(
+    Long memberId,
+    Integer sigunguCd,
+    Long fillMapId,
+    EmdFillUpdateRequest request
+  ) {
+    Sigungu sigungu = sigunguRepository.findBySigunguCd(sigunguCd)
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "존재하지 않는 시군구 코드입니다."
+      ));
+
+    FillMap fillMap = fillMapRepository.findById(fillMapId)
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "해당 읍면동 채우기 데이터가 존재하지 않습니다."
+      ));
+
+    if (fillMap.getMapType() != MapType.EMD) {
+      throw new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "해당 읍면동 채우기 데이터가 존재하지 않습니다."
+      );
+    }
+
+    if (!fillMap.getMemberId().equals(memberId)) {
+      throw new BaseException(
+        GeneralErrorCode.ACCESS_DENIED,
+        "해당 읍면동 채우기 데이터를 수정할 권한이 없습니다."
+      );
+    }
+
+    if (!fillMap.getSigungu().getSigunguCd().equals(sigungu.getSigunguCd())) {
+      throw new BaseException(
+        GeneralErrorCode.INVALID_INPUT_VALUE,
+        "해당 읍면동 채우기 데이터가 요청한 시군구에 속하지 않습니다."
+      );
+    }
+
+    if (request.fillType() == FillType.COLOR) {
+      fillMap.fillWithColor(request.color());
+    }
+
+    if (request.fillType() == FillType.IMAGE) {
+      fillMap.fillWithImage(request.imgUrl());
+    }
+
+    FillMap updated = fillMapRepository.save(fillMap);
+    return EmdFillResponse.from(updated);
   }
 
   @Transactional

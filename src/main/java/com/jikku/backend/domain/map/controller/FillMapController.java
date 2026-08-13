@@ -9,6 +9,7 @@ import com.jikku.backend.domain.map.dto.MapTravelPostRequest;
 import com.jikku.backend.domain.map.dto.MapTravelPostResponse;
 import com.jikku.backend.domain.map.dto.SigunguFillRequest;
 import com.jikku.backend.domain.map.dto.SigunguFillResponse;
+import com.jikku.backend.domain.map.dto.EmdFillUpdateRequest;
 import com.jikku.backend.domain.map.service.EmdFillService;
 import com.jikku.backend.domain.map.service.MapStickerService;
 import com.jikku.backend.domain.map.service.MapTravelPostService;
@@ -68,6 +69,18 @@ public class FillMapController {
     @Valid @RequestBody EmdFillRequest request
   ) {
     return ApiResponse.onSuccess(emdFillService.saveEmdFillMap(memberId, sigunguCd, request));
+  }
+
+  @PatchMapping("/{sigunguCd}/update/{fillMapId}")
+  public ApiResponse<EmdFillResponse> updateEmdFillMap(
+    @AuthenticationPrincipal Long memberId,
+    @PathVariable Integer sigunguCd,
+    @PathVariable Long fillMapId,
+    @Valid @RequestBody EmdFillUpdateRequest request
+  ) {
+    return ApiResponse.onSuccess(
+      emdFillService.updateEmdFillMap(memberId, sigunguCd, fillMapId, request)
+    );
   }
 
   @GetMapping("/{sigunguCd}/stickers")
