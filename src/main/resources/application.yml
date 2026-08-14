@@ -39,6 +39,10 @@ jwt:
   refresh-expiration: 1209600000       # Refresh 토큰 만료(ms) = 14일. 서버에 저장하지 않아 만료 전엔
                                        # 무효화할 수단이 없으므로 무한정 길게 잡지 않는다
 
+# 카카오 로그인. 프론트가 SDK로 받은 액세스 토큰을 검증하는 방식이라 서버가 들고 있을 키·시크릿이 없다
+kakao:
+  api-base-url: https://kapi.kakao.com
+
 # 개발용 로그인(POST /auth/dev-login) 보호키. 비어 있으면 해당 요청을 전부 거부한다(fail-closed).
 dev-login:
   key: ${DEV_LOGIN_KEY:}
