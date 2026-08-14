@@ -2,6 +2,7 @@ package com.jikku.backend.domain.tourApi.service;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDate;
 
 @Disabled("3개년 적재 완료. 재적재 필요 시에만 이 줄 제거하고 수동 실행")
+@Tag("integration")
 @SpringBootTest
 class VisitorDDServiceTest {
 

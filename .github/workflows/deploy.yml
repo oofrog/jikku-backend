@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # 코드 변경 없이 다시 배포하고 싶을 때 (Actions 탭에서 수동 실행)
+
+# 배포가 겹치면 나중에 시작한 쪽이 먼저 끝나 옛 버전이 남을 수 있다. 한 번에 하나만 돌린다.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: 유닛 테스트
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 21 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Gradle 설정 (의존성 캐시 포함)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 빌드 & 유닛 테스트
+        run: ./gradlew build -PexcludeTags=integration
+
+  deploy:
+    name: Fly.io 배포
+    needs: test
+    runs-on: ubuntu-latest
+    # 토큰이 없는 동안(배포처 셋업 전) 매 푸시마다 실패 알림이 오는 걸 막는다.
+    if: vars.DEPLOY_ENABLED == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # 이미지 빌드는 Fly 원격 빌더에서 한다(--remote-only). 러너에 도커를 띄우지 않아도 되고,
+      # 의존성 레이어가 배포 간에 캐시된다.
+      - name: 배포
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

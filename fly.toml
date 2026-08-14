@@ -1,0 +1,23 @@
+# Fly.io 배포 설정.
+# DB는 Supabase, 이미지 저장은 Cloudflare R2라 여기서는 앱 컨테이너 하나만 띄운다.
+app = "jikku-backend"
+primary_region = "nrt"   # 도쿄. Fly 리전 중 한국에서 가장 가깝다
+
+[build]
+
+[env]
+  # 컨테이너에 준 메모리 기준으로 힙을 잡는다. 이걸 안 주면 JVM이 호스트 전체 메모리를 보고
+  # 힙을 크게 잡았다가 컨테이너 한도에 걸려 OOM으로 죽는다.
+  JAVA_TOOL_OPTIONS = "-XX:MaxRAMPercentage=70"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_start_machines = true
+  # 유휴 시 머신을 재우면 다음 첫 요청이 콜드스타트로 수십 초 걸린다. 시연·심사 중엔 치명적이라 항상 켜 둔다.
+  auto_stop_machines = false
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"   # Spring Boot + JPA + 커넥션 풀 기준. 512mb는 기동 중 OOM 위험이 있다

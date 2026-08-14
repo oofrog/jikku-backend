@@ -3,6 +3,7 @@ package com.jikku.backend.domain.region.service;
 import com.jikku.backend.domain.region.dto.UnderservedRegionListResponse;
 import com.jikku.backend.domain.region.dto.UnderservedRegionResponse;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Tag("integration")
 @SpringBootTest
 class UnderservedRegionServiceTest {
 

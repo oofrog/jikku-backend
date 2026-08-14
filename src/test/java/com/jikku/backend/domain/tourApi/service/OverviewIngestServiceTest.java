@@ -4,10 +4,12 @@ import com.jikku.backend.domain.tourApi.repository.FestivalIngestRepository;
 import com.jikku.backend.domain.tourApi.repository.SpotIngestRepository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 @Disabled("전량 적재 완료(관광지 1356 / 축제 55). TourAPI 데이터 갱신분을 다시 받을 때만 실행")
+@Tag("integration")
 @SpringBootTest
 class OverviewIngestServiceTest {
 
