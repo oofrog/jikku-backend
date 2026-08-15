@@ -39,10 +39,21 @@ fly secrets set \
   TOUR_API_SERVICE_KEY='...' TOUR_API_MOBILE_APP='jikku' \
   JWT_SECRET='...' DEV_LOGIN_KEY='...' \
   R2_ACCOUNT_ID='...' R2_ACCESS_KEY_ID='...' R2_SECRET_ACCESS_KEY='...' \
-  R2_BUCKET='...' R2_PUBLIC_BASE_URL='https://...'
+  R2_BUCKET='...' R2_PUBLIC_BASE_URL='https://...' \
+  CORS_ALLOWED_ORIGINS='http://localhost:3000,http://localhost:5173'
 ```
 
 `.env.example`에 있는 항목이 전부 들어가야 한다. 하나라도 빠지면 앱이 뜨다가 죽는다.
+
+**`CORS_ALLOWED_ORIGINS`는 배포 환경에서 특히 주의한다.** 로컬에서는 값이 없어도 `localhost:3000`·`5173`이
+기본 허용이지만, Fly에 이 변수를 안 넣으면 그 기본값이 그대로 쓰여서 나중에 프론트를 배포했을 때 막힌다.
+반대로 지금처럼 **프론트는 로컬에서 돌리고 백엔드만 배포한 연동 단계**에서는, 브라우저가 보내는 오리진이
+`http://localhost:3000`이므로 Fly 시크릿에도 localhost가 들어 있어야 한다. 프론트 배포 주소가 정해지면
+그 주소를 추가하고, 연동이 끝나면 localhost를 빼면 된다.
+
+```bash
+fly secrets set CORS_ALLOWED_ORIGINS='https://프론트배포주소'   # 프론트 배포 후
+```
 
 ### 3. GitHub에 배포 토큰 등록
 

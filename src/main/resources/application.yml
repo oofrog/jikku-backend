@@ -26,6 +26,12 @@ spring:
       max-file-size: 10MB       # ImageService의 검증값과 동일. 초과분은 컨트롤러 도달 전에 톰캣이 끊는다
       max-request-size: 12MB    # 파일 + 나머지 파트 합계
 
+# CORS 허용 오리진. 브라우저는 스킴·호스트·포트가 하나라도 다르면 다른 오리진으로 보므로
+# localhost와 127.0.0.1을 따로 적어야 하고, 프론트 dev 서버 포트(Next=3000, Vite=5173)도 각각 필요하다.
+# 배포 환경에서는 CORS_ALLOWED_ORIGINS로 통째로 덮어쓴다.
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}
+
 # TourAPI
 tour-api:
   service-key: ${TOUR_API_SERVICE_KEY}
