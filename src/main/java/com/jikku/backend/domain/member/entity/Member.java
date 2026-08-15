@@ -32,4 +32,19 @@ public class Member extends BaseTimeEntity {
 
     @Column(nullable = false)
     private String email;
+
+    /**
+     * 발급된 Refresh 토큰의 SHA-256 해시. 원문을 저장하면 DB 유출이 그대로 계정 탈취가 된다.
+     * null이면 로그인 상태가 아니라는 뜻이라 재발급이 거부된다(= 로그아웃).
+     * 회원당 한 칸이므로 다른 기기에서 로그인하면 이전 기기의 Refresh 토큰은 무효가 된다.
+     */
+    private String refreshToken;
+
+    public void updateRefreshToken(String refreshTokenHash) {
+        this.refreshToken = refreshTokenHash;
+    }
+
+    public void clearRefreshToken() {
+        this.refreshToken = null;
+    }
 }

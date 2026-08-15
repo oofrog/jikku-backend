@@ -1,5 +1,6 @@
 package com.jikku.backend.domain.member.controller;
 
+import com.jikku.backend.domain.member.dto.KakaoLoginRequest;
 import com.jikku.backend.domain.member.dto.ReissueRequest;
 import com.jikku.backend.domain.member.dto.TokenResponse;
 import com.jikku.backend.domain.member.service.AuthService;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 인증 API. /auth/**는 SecurityConfig 화이트리스트라 토큰 없이 접근 가능하다.
+ * 단 로그아웃만은 지울 대상을 알아야 해서 Access 토큰 인증을 요구한다.
  */
 @Tag(name = "Auth", description = "인증 API")
 @RestController
@@ -25,6 +28,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Operation(summary = "카카오 로그인",
+            description = "프론트가 카카오 로그인 후 리다이렉트로 받은 인가 코드를 보내면, 서버가 액세스 토큰으로 교환하고 "
+                    + "카카오에 사용자 정보를 조회해 검증한 뒤 우리 서비스의 Access·Refresh 토큰을 발급한다. "
+                    + "처음 로그인하는 사용자는 이때 가입된다. redirectUri는 인가 요청에 쓴 값과 같아야 한다. "
+                    + "코드가 유효하지 않으면 KAKAO401_2, 이메일 제공에 동의하지 않았으면 KAKAO400_1로 응답한다. "
+                    + "교환한 카카오 토큰이 거부되면 KAKAO401_1, 카카오 호출 자체가 실패하면 KAKAO502_1이다.")
+    @PostMapping("/login/kakao")
+    public ApiResponse<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
+        return ApiResponse.onSuccess(authService.kakaoLogin(request.code(), request.redirectUri()));
+    }
+
+    @Operation(summary = "로그아웃",
+            description = "서버에 저장된 Refresh 토큰을 지워 재발급을 막는다. Access 토큰 인증이 필요하다. "
+                    + "이미 발급된 Access 토큰은 만료(1시간)될 때까지 유효하므로, 클라이언트도 저장한 토큰을 지워야 한다.")
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@AuthenticationPrincipal Long memberId) {
+        authService.logout(memberId);
+        return ApiResponse.onSuccess();
+    }
 
     @Operation(summary = "개발용 로그인",
             description = "카카오 없이 고정 테스트 회원의 Access 토큰을 발급한다. (개발 전용) "
