@@ -11,6 +11,7 @@ import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import com.jikku.backend.global.security.DevLoginKeyVerifier;
 import com.jikku.backend.global.security.JwtTokenProvider;
+import com.jikku.backend.global.security.TokenHasher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,6 +31,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final DevLoginKeyVerifier devLoginKeyVerifier;
     private final KakaoClient kakaoClient;
+    private final TokenHasher tokenHasher;
 
     // 고정 테스트 회원 식별값 (개발 전용). email은 NOT NULL이라 더미값을 채운다.
     private static final SocialLogin DEV_SOCIAL_LOGIN = SocialLogin.KAKAO;
@@ -62,7 +64,7 @@ public class AuthService {
                 .findBySocialLoginAndSocialUid(SocialLogin.KAKAO, kakaoUser.socialUid())
                 .orElseGet(() -> registerKakaoMember(kakaoUser));
 
-        return issueTokens(member.getMemberId());
+        return issueTokens(member);
     }
 
     /**
@@ -97,29 +99,48 @@ public class AuthService {
                 .findBySocialLoginAndSocialUid(DEV_SOCIAL_LOGIN, DEV_SOCIAL_UID)
                 .orElseGet(this::createDevMember);
 
-        return issueTokens(member.getMemberId());
+        return issueTokens(member);
     }
 
     /**
      * Refresh 토큰으로 토큰 쌍을 재발급한다.
-     * 서버에 저장하지 않는 방식이라 이전 Refresh 토큰은 만료 전까지 계속 유효하다 — 회전은 되지 않는다.
+     * 서명·만료가 멀쩡해도 서버에 저장된 것과 다르면 거부한다 — 로그아웃했거나 다른 기기 로그인에 밀린 토큰이다.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public TokenResponse reissue(String refreshToken) {
         Long memberId = jwtTokenProvider.getMemberIdFromRefreshToken(refreshToken);
 
         // 서명이 유효해도 탈퇴 등으로 회원이 사라졌을 수 있다
-        if (!memberRepository.existsById(memberId)) {
-            throw new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND));
+
+        if (!tokenHasher.hash(refreshToken).equals(member.getRefreshToken())) {
+            throw new BaseException(GeneralErrorCode.REVOKED_TOKEN);
         }
 
-        return issueTokens(memberId);
+        return issueTokens(member);
     }
 
-    private TokenResponse issueTokens(Long memberId) {
-        return TokenResponse.bearer(
-                jwtTokenProvider.createAccessToken(memberId),
-                jwtTokenProvider.createRefreshToken(memberId));
+    /** 로그아웃: 저장된 Refresh 토큰을 지운다. 이미 발급된 Access 토큰은 만료(1시간)까지 남는다. */
+    @Transactional
+    public void logout(Long memberId) {
+        memberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND))
+                .clearRefreshToken();
+    }
+
+    /**
+     * 새로 발급한 Refresh 토큰의 해시를 회원에 심는다. 이 시점부터 이전 Refresh 토큰은 무효다.
+     * 트랜잭션 밖에서 불릴 수 있어(카카오 로그인) 준영속 상태를 가정하고 명시적으로 저장한다.
+     */
+    private TokenResponse issueTokens(Member member) {
+        String accessToken = jwtTokenProvider.createAccessToken(member.getMemberId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberId());
+
+        member.updateRefreshToken(tokenHasher.hash(refreshToken));
+        memberRepository.save(member);
+
+        return TokenResponse.bearer(accessToken, refreshToken);
     }
 
     // 테스트 회원이 아직 없으면 생성해 저장한다.

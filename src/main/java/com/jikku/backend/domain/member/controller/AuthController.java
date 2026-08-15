@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 인증 API. /auth/**는 SecurityConfig 화이트리스트라 토큰 없이 접근 가능하다.
+ * 단 로그아웃만은 지울 대상을 알아야 해서 Access 토큰 인증을 요구한다.
  */
 @Tag(name = "Auth", description = "인증 API")
 @RestController
@@ -38,10 +40,11 @@ public class AuthController {
     }
 
     @Operation(summary = "로그아웃",
-            description = "서버는 Refresh 토큰을 저장하지 않으므로(무상태) 실제 폐기는 클라이언트가 저장한 토큰을 지우는 것으로 끝난다. "
-                    + "이미 발급된 토큰은 만료 전까지 계속 유효하다.")
+            description = "서버에 저장된 Refresh 토큰을 지워 재발급을 막는다. Access 토큰 인증이 필요하다. "
+                    + "이미 발급된 Access 토큰은 만료(1시간)될 때까지 유효하므로, 클라이언트도 저장한 토큰을 지워야 한다.")
     @PostMapping("/logout")
-    public ApiResponse<Void> logout() {
+    public ApiResponse<Void> logout(@AuthenticationPrincipal Long memberId) {
+        authService.logout(memberId);
         return ApiResponse.onSuccess();
     }
 
