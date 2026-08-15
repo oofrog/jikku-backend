@@ -94,7 +94,7 @@ class KakaoClientTest {
 
     @Test
     @DisplayName("만료·재사용된 코드는 사용자 토큰 문제와 다른 코드로 구분해 던진다")
-    void throwsInvalidCodeOn4xx() {
+    void throwsInvalidCodeOn400() {
         server.expect(requestTo(TOKEN_URL))
                 .andRespond(withStatus(HttpStatus.BAD_REQUEST)
                         .body("{\"error\":\"invalid_grant\",\"error_code\":\"KOE320\"}")
@@ -104,6 +104,18 @@ class KakaoClientTest {
                 .isInstanceOf(BaseException.class)
                 .extracting(e -> ((BaseException) e).getErrorCode())
                 .isEqualTo(MemberErrorCode.INVALID_KAKAO_CODE);
+    }
+
+    @Test
+    @DisplayName("rate limit·키 설정 오류는 코드 문제가 아니다 (재로그인시켜도 풀리지 않는다)")
+    void throwsServerErrorOnOther4xxWhenExchangingCode() {
+        server.expect(requestTo(TOKEN_URL))
+                .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS));
+
+        assertThatThrownBy(() -> kakaoClient.getToken(CODE, REDIRECT_URI))
+                .isInstanceOf(BaseException.class)
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(MemberErrorCode.KAKAO_SERVER_ERROR);
     }
 
     @Test
@@ -168,6 +180,18 @@ class KakaoClientTest {
                 .isInstanceOf(BaseException.class)
                 .extracting(e -> ((BaseException) e).getErrorCode())
                 .isEqualTo(MemberErrorCode.INVALID_KAKAO_TOKEN);
+    }
+
+    @Test
+    @DisplayName("401 외의 4xx(앱 설정·rate limit)는 토큰 문제로 보지 않는다")
+    void throwsServerErrorOnForbidden() {
+        server.expect(requestTo(USER_INFO_URL))
+                .andRespond(withStatus(HttpStatus.FORBIDDEN));
+
+        assertThatThrownBy(() -> kakaoClient.getUserInfo(ACCESS_TOKEN))
+                .isInstanceOf(BaseException.class)
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(MemberErrorCode.KAKAO_SERVER_ERROR);
     }
 
     @Test

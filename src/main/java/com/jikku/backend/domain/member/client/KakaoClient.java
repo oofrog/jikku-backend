@@ -7,6 +7,7 @@ import com.jikku.backend.global.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -73,10 +74,16 @@ public class KakaoClient {
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(form)
                     .retrieve()
-                    // 코드 문제(만료·재사용·redirect_uri 불일치)는 400으로 오므로 우리 서버 장애와 갈라낸다
-                    .onStatus(HttpStatusCode::is4xxClientError, (request, clientResponse) -> {
+                    // 코드 문제(만료·재사용·redirect_uri 불일치)는 400으로 온다. 4xx를 통째로 여기 묶으면
+                    // 키 설정 오류나 rate limit까지 "코드가 잘못됐다"가 되어, 사용자가 재로그인을 반복해도
+                    // 풀리지 않는 상태에 빠진다.
+                    .onStatus(status -> status.isSameCodeAs(HttpStatus.BAD_REQUEST), (request, clientResponse) -> {
                         log.warn("카카오 토큰 발급 거부. status={}", clientResponse.getStatusCode());
                         throw new BaseException(MemberErrorCode.INVALID_KAKAO_CODE);
+                    })
+                    .onStatus(HttpStatusCode::isError, (request, clientResponse) -> {
+                        log.error("카카오 토큰 발급 실패. status={}", clientResponse.getStatusCode());
+                        throw new BaseException(MemberErrorCode.KAKAO_SERVER_ERROR);
                     })
                     .body(KakaoTokenResponse.class);
         } catch (RestClientException e) {
@@ -107,9 +114,14 @@ public class KakaoClient {
                     .retrieve()
                     // 토큰이 틀리거나 만료되면 카카오가 401을 준다. 기본 핸들러에 맡기면 5xx와 같은
                     // 예외 계열로 뭉개져서 "사용자 토큰 문제"가 "우리 서버 장애"로 보인다.
-                    .onStatus(HttpStatusCode::is4xxClientError, (request, clientResponse) -> {
+                    // 반대로 403·429까지 여기 묶으면 앱 설정 문제나 rate limit이 "토큰이 틀렸다"가 된다.
+                    .onStatus(status -> status.isSameCodeAs(HttpStatus.UNAUTHORIZED), (request, clientResponse) -> {
                         log.warn("카카오 사용자 정보 조회 거부. status={}", clientResponse.getStatusCode());
                         throw new BaseException(MemberErrorCode.INVALID_KAKAO_TOKEN);
+                    })
+                    .onStatus(HttpStatusCode::isError, (request, clientResponse) -> {
+                        log.error("카카오 사용자 정보 조회 실패. status={}", clientResponse.getStatusCode());
+                        throw new BaseException(MemberErrorCode.KAKAO_SERVER_ERROR);
                     })
                     .body(KakaoUserResponse.class);
         } catch (RestClientException e) {
