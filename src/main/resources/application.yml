@@ -2,6 +2,11 @@ spring:
   application:
     name: jikku-backend
 
+  # 환경별로 갈리는 값만 application-{local,prod}.yml에 두고 나머지는 여기 공통으로 둔다.
+  # 배포(Fly)에서는 SPRING_PROFILES_ACTIVE=prod가 이 기본값을 덮어쓴다.
+  profiles:
+    default: local
+
   # .env를 properties로 읽어 아래 ${} 자리표시자를 채운다. 이게 없으면 IDE의 EnvFile 플러그인이나
   # 셸 export에 의존하게 되어 터미널 실행이 깨진다. 배포 환경엔 .env 없이 진짜 환경변수만 있으므로 optional.
   config:
@@ -15,11 +20,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update          # 엔티티에서 스키마 자동 생성, 기존 데이터는 안 건드림 (CLAUDE.md §2)
-    show-sql: true              # 실행 SQL 콘솔 출력 (개발 편의)
-    properties:
-      hibernate:
-        format_sql: true        # SQL 보기 좋게 포맷팅
+      # 엔티티에서 스키마 자동 생성, 기존 데이터는 안 건드림 (CLAUDE.md §2).
+      # 엔티티 작업이 끝나면 validate로 내린다 — 그때부터 스키마는 Supabase에서만 관리한다.
+      ddl-auto: update
+    # show-sql은 프로필별로 갈린다 (local만 켬)
 
   servlet:
     multipart:

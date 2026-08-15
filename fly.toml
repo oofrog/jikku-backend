@@ -10,6 +10,9 @@ primary_region = "nrt"   # 도쿄. Fly 리전 중 한국에서 가장 가깝다
   # 힙을 크게 잡았다가 컨테이너 한도에 걸려 OOM으로 죽는다.
   JAVA_TOOL_OPTIONS = "-XX:MaxRAMPercentage=70"
 
+  # application-prod.yml을 켠다. 민감정보가 아니라 시크릿이 아니라 평문 env로 둔다.
+  SPRING_PROFILES_ACTIVE = "prod"
+
 [http_service]
   internal_port = 8080
   force_https = true

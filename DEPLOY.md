@@ -90,6 +90,24 @@ fly secrets list      # 등록된 시크릿 이름 (값은 안 보인다)
 
 ---
 
+## 설정 프로필
+
+공통 설정은 `application.yml`에 있고, 환경별로 갈리는 값만 나눠 뒀다.
+
+| 프로필 | 파일 | 차이 |
+| --- | --- | --- |
+| `local` (기본) | `application-local.yml` | SQL 로그 켬 |
+| `prod` | `application-prod.yml` | SQL 로그 끔, 로깅 INFO |
+
+프로필을 지정하지 않으면 `local`이라 `./gradlew bootRun`은 예전 그대로다. 배포본은 `fly.toml`의
+`SPRING_PROFILES_ACTIVE = "prod"`로 켠다. 기동 로그 맨 앞에 `The following 1 profile is active: "prod"`가
+찍히는지 보면 제대로 적용됐는지 알 수 있다.
+
+`ddl-auto`는 아직 `update`다. 엔티티 작업이 끝나면 `validate`로 내리기로 했다(그러면 스키마는
+Supabase에서만 관리하고 스프링은 대조만 한다). 바꿀 때는 main과 test의 `application.yml` **양쪽**을 고쳐야 한다.
+
+---
+
 ## 알아둘 것
 
 - **머신을 재우지 않는다.** 유휴 시 자동으로 끄면 다음 첫 요청이 콜드스타트로 수십 초 걸린다.
