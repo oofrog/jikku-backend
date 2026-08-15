@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 public enum MemberErrorCode implements BaseErrorCode {
 
     INVALID_KAKAO_TOKEN(HttpStatus.UNAUTHORIZED, "KAKAO401_1", "카카오 액세스 토큰이 유효하지 않습니다."),
+    // 인가 코드는 일회용이고 수 분 내 만료된다. 재사용·만료·redirect_uri 불일치가 모두 여기로 온다.
+    INVALID_KAKAO_CODE(HttpStatus.UNAUTHORIZED, "KAKAO401_2", "카카오 인가 코드가 유효하지 않습니다."),
     // 카카오 장애와 우리 서버 오류를 프론트가 구분할 수 있도록 502로 낸다.
     KAKAO_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "KAKAO502_1", "카카오 인증 서버 호출에 실패했습니다."),
     KAKAO_EMAIL_NOT_AGREED(HttpStatus.BAD_REQUEST, "KAKAO400_1", "카카오 계정의 이메일 제공에 동의해야 로그인할 수 있습니다.");

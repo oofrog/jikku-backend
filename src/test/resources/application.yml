@@ -37,9 +37,12 @@ jwt:
   access-expiration: 3600000           # Access 토큰 만료(ms) = 1시간 (main과 동일)
   refresh-expiration: 1209600000       # Refresh 토큰 만료(ms) = 14일
 
-# 카카오 로그인 (main과 동일)
+# 카카오 로그인 (main과 동일). 키는 실제 호출을 하지 않는 테스트라 더미 기본값을 둔다
 kakao:
   api-base-url: https://kapi.kakao.com
+  auth-base-url: https://kauth.kakao.com
+  rest-api-key: ${KAKAO_REST_API_KEY:test-rest-api-key}
+  client-secret: ${KAKAO_CLIENT_SECRET:}
 
 # 개발용 로그인 보호키 (main과 동일. 비어 있으면 거부)
 dev-login:

@@ -28,12 +28,13 @@ public class AuthController {
     private final AuthService authService;
 
     @Operation(summary = "카카오 로그인",
-            description = "프론트가 카카오 SDK로 받은 액세스 토큰을 보내면, 그 토큰으로 카카오에 사용자 정보를 조회해 "
-                    + "검증한 뒤 우리 서비스의 Access·Refresh 토큰을 발급한다. 처음 로그인하는 사용자는 이때 가입된다. "
-                    + "토큰이 유효하지 않으면 KAKAO401_1, 이메일 제공에 동의하지 않았으면 KAKAO400_1로 응답한다.")
+            description = "프론트가 카카오 로그인 후 리다이렉트로 받은 인가 코드를 보내면, 서버가 액세스 토큰으로 교환하고 "
+                    + "카카오에 사용자 정보를 조회해 검증한 뒤 우리 서비스의 Access·Refresh 토큰을 발급한다. "
+                    + "처음 로그인하는 사용자는 이때 가입된다. redirectUri는 인가 요청에 쓴 값과 같아야 한다. "
+                    + "코드가 유효하지 않으면 KAKAO401_2, 이메일 제공에 동의하지 않았으면 KAKAO400_1로 응답한다.")
     @PostMapping("/login/kakao")
     public ApiResponse<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
-        return ApiResponse.onSuccess(authService.kakaoLogin(request.accessToken()));
+        return ApiResponse.onSuccess(authService.kakaoLogin(request.code(), request.redirectUri()));
     }
 
     @Operation(summary = "로그아웃",

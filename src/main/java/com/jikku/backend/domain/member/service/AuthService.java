@@ -41,14 +41,15 @@ public class AuthService {
     private static final String DEFAULT_USERNAME = "여행자";
 
     /**
-     * 카카오 로그인: 프론트가 보낸 카카오 액세스 토큰으로 사용자 정보를 조회해 검증하고,
-     * 그 회원을 찾거나 새로 만들어 우리 JWT를 발급한다.
+     * 카카오 로그인: 프론트가 보낸 인가 코드를 카카오 액세스 토큰으로 바꾸고, 그 토큰으로 사용자 정보를
+     * 조회해 검증한 뒤, 그 회원을 찾거나 새로 만들어 우리 JWT를 발급한다.
      *
      * <p>메서드 전체를 하나의 트랜잭션으로 묶지 않는다. 아래 중복 가입 처리가 "insert 실패 → 재조회"인데,
      * 한 트랜잭션 안에서 제약 위반이 나면 그 트랜잭션엔 이미 롤백 표시가 붙어 재조회 결과를 커밋할 수 없다.
      * 리포지토리 호출마다 트랜잭션이 따로 열리게 두면 실패한 insert만 롤백되고 재조회는 새 트랜잭션에서 성공한다.
      */
-    public TokenResponse kakaoLogin(String kakaoAccessToken) {
+    public TokenResponse kakaoLogin(String code, String redirectUri) {
+        String kakaoAccessToken = kakaoClient.getToken(code, redirectUri);
         KakaoUserResponse kakaoUser = kakaoClient.getUserInfo(kakaoAccessToken);
 
         // 이메일은 카카오 동의항목이라 빠질 수 있는데 member.email은 NOT NULL이다.

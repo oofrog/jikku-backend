@@ -30,6 +30,8 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
+    private static final String CODE = "kakao-auth-code";
+    private static final String REDIRECT_URI = "http://localhost:5173/oauth/kakao";
     private static final String ACCESS_TOKEN = "kakao-access-token";
     private static final String SOCIAL_UID = "1234567890";
 
@@ -48,6 +50,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("처음 로그인하는 사용자는 카카오 프로필로 가입되고 토큰을 받는다")
     void registersOnFirstLogin() {
+        given(kakaoClient.getToken(CODE, REDIRECT_URI)).willReturn(ACCESS_TOKEN);
         given(kakaoClient.getUserInfo(ACCESS_TOKEN)).willReturn(kakaoUser("여행가", "traveler@kakao.com"));
         given(memberRepository.findBySocialLoginAndSocialUid(SocialLogin.KAKAO, SOCIAL_UID))
                 .willReturn(Optional.empty());
@@ -55,7 +58,7 @@ class AuthServiceTest {
         given(jwtTokenProvider.createAccessToken(1L)).willReturn("access");
         given(jwtTokenProvider.createRefreshToken(1L)).willReturn("refresh");
 
-        TokenResponse response = authService.kakaoLogin(ACCESS_TOKEN);
+        TokenResponse response = authService.kakaoLogin(CODE, REDIRECT_URI);
 
         ArgumentCaptor<Member> saved = ArgumentCaptor.forClass(Member.class);
         verify(memberRepository).save(saved.capture());
@@ -72,13 +75,14 @@ class AuthServiceTest {
     @Test
     @DisplayName("이미 가입된 사용자는 다시 가입시키지 않는다")
     void reusesExistingMember() {
+        given(kakaoClient.getToken(CODE, REDIRECT_URI)).willReturn(ACCESS_TOKEN);
         given(kakaoClient.getUserInfo(ACCESS_TOKEN)).willReturn(kakaoUser("여행가", "traveler@kakao.com"));
         given(memberRepository.findBySocialLoginAndSocialUid(SocialLogin.KAKAO, SOCIAL_UID))
                 .willReturn(Optional.of(member(7L)));
         given(jwtTokenProvider.createAccessToken(7L)).willReturn("access");
         given(jwtTokenProvider.createRefreshToken(7L)).willReturn("refresh");
 
-        authService.kakaoLogin(ACCESS_TOKEN);
+        authService.kakaoLogin(CODE, REDIRECT_URI);
 
         verify(memberRepository, never()).save(any(Member.class));
     }
@@ -86,12 +90,13 @@ class AuthServiceTest {
     @Test
     @DisplayName("닉네임 동의를 받지 못했으면 기본 이름으로 가입시킨다 (표시용이라 로그인을 막지 않는다)")
     void fallsBackToDefaultUsername() {
+        given(kakaoClient.getToken(CODE, REDIRECT_URI)).willReturn(ACCESS_TOKEN);
         given(kakaoClient.getUserInfo(ACCESS_TOKEN)).willReturn(kakaoUser(null, "traveler@kakao.com"));
         given(memberRepository.findBySocialLoginAndSocialUid(SocialLogin.KAKAO, SOCIAL_UID))
                 .willReturn(Optional.empty());
         given(memberRepository.save(any(Member.class))).willReturn(member(1L));
 
-        authService.kakaoLogin(ACCESS_TOKEN);
+        authService.kakaoLogin(CODE, REDIRECT_URI);
 
         ArgumentCaptor<Member> saved = ArgumentCaptor.forClass(Member.class);
         verify(memberRepository).save(saved.capture());
@@ -101,9 +106,10 @@ class AuthServiceTest {
     @Test
     @DisplayName("이메일 동의를 받지 못했으면 가짜 값을 채우지 않고 거부한다")
     void rejectsWhenEmailNotAgreed() {
+        given(kakaoClient.getToken(CODE, REDIRECT_URI)).willReturn(ACCESS_TOKEN);
         given(kakaoClient.getUserInfo(ACCESS_TOKEN)).willReturn(kakaoUser("여행가", null));
 
-        assertThatThrownBy(() -> authService.kakaoLogin(ACCESS_TOKEN))
+        assertThatThrownBy(() -> authService.kakaoLogin(CODE, REDIRECT_URI))
                 .isInstanceOf(BaseException.class)
                 .extracting(e -> ((BaseException) e).getErrorCode())
                 .isEqualTo(MemberErrorCode.KAKAO_EMAIL_NOT_AGREED);
