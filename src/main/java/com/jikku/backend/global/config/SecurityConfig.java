@@ -6,6 +6,7 @@ import com.jikku.backend.global.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.http.HttpMethod;
@@ -30,12 +31,16 @@ public class SecurityConfig {
     private final String[] allowUris = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/health"          // Fly 헬스체크는 토큰을 못 붙인다. 인증을 걸면 401이라 머신이 죽은 것으로 판정된다
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // CorsConfig의 CorsConfigurationSource 빈을 쓴다. 이걸 켜야 preflight(OPTIONS)가
+                // 인가 규칙에 닿기 전에 CorsFilter에서 처리돼 401 없이 통과한다.
+                .cors(Customizer.withDefaults())
                 // 무상태 JSON API라 세션·CSRF·폼로그인·기본인증을 끈다
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)

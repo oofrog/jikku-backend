@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +20,7 @@ import org.springframework.test.context.DynamicPropertySource;
 // 활성화하면 ENTITY_NOT_FOUND로 실패하고, 통과하더라도 공유 DB에 map_sticker 행이
 // 커밋돼 재실행 시 중복으로 막힌다. 저장 검증은 다음 이슈에서 함께 다룬다.
 @Disabled("TravelPost 등록 구현 전까지 검증 불가")
+@Tag("integration")
 @SpringBootTest
 class MapTravelPostServiceTest {
 

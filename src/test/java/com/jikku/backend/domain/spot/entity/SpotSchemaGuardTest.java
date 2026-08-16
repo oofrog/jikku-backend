@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.spot.entity;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 실제로 columnDefinition을 빼먹었을 때 text 6개가 varchar(255)로 좁혀진 적이 있어 회귀 테스트로 남긴다.
  * 컨텍스트가 뜨는 시점에 이미 update가 돌기 때문에, 이 테스트는 그 뒤의 스키마를 검사한다.
  */
+@Tag("integration")
 @SpringBootTest
 class SpotSchemaGuardTest {
 

@@ -54,5 +54,12 @@ dependencies {
 }
 
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // 통합 테스트(@Tag("integration"))는 운영 Supabase·외부 API에 실제로 붙는다. CI에는 접속 정보가 없고,
+        // 있더라도 CI가 돌 때마다 운영 스키마에 ddl-auto=update가 걸리므로 -PexcludeTags=integration으로 뺀다.
+        // 로컬에서 그냥 ./gradlew test를 하면 전부 실행된다.
+        if (project.hasProperty('excludeTags')) {
+            excludeTags(*project.property('excludeTags').toString().split(','))
+        }
+    }
 }

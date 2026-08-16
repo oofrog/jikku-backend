@@ -1,0 +1,7 @@
+# 로컬 개발용. 프로필을 지정하지 않고 실행하면 이 파일이 적용된다(application.yml의 profiles.default).
+spring:
+  jpa:
+    show-sql: true              # 실행 SQL 콘솔 출력
+    properties:
+      hibernate:
+        format_sql: true        # SQL 보기 좋게 포맷팅

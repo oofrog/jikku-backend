@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # 코드 변경 없이 다시 배포하고 싶을 때 (Actions 탭에서 수동 실행)
+
+# 배포가 겹치면 나중에 시작한 쪽이 먼저 끝나 옛 버전이 남을 수 있다. 한 번에 하나만 돌린다.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+# 코드를 읽고 Fly에 배포하기만 한다. 배포 자격증명은 GITHUB_TOKEN이 아니라 FLY_API_TOKEN이다.
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 유닛 테스트
+    runs-on: ubuntu-latest
+    steps:
+      # 이후 단계가 Gradle 빌드뿐이라 git 인증을 쓸 일이 없다. 토큰을 .git/config에 남기지 않는다.
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: JDK 21 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Gradle 설정 (의존성 캐시 포함)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: 빌드 & 유닛 테스트
+        run: ./gradlew build -PexcludeTags=integration
+
+  deploy:
+    name: Fly.io 배포
+    needs: test
+    runs-on: ubuntu-latest
+    # 토큰이 없는 동안(배포처 셋업 전) 매 푸시마다 실패 알림이 오는 걸 막는다.
+    # ref 조건은 수동 실행(workflow_dispatch) 때문에 필요하다. Actions 탭에서 아무 브랜치나
+    # 고를 수 있어서, 없으면 작업 브랜치를 운영에 배포하는 사고가 난다.
+    if: vars.DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # 이미지 빌드는 Fly 원격 빌더에서 한다(--remote-only). 러너에 도커를 띄우지 않아도 되고,
+      # 의존성 레이어가 배포 간에 캐시된다.
+      - name: 배포
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
