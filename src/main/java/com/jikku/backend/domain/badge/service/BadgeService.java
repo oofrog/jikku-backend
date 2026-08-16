@@ -17,7 +17,7 @@ public class BadgeService {
 
   @Transactional(readOnly = true)
   public BadgeListResponse getBadges(Long memberId) {
-    List<Badge> badges = badgeRepository.findAllByMemberId(memberId);
+    List<Badge> badges = badgeRepository.findAllByMember_MemberIdOrderByBadgeId(memberId);
 
     List<BadgeResponse> content = badges.stream()
       .map(BadgeResponse::of)
