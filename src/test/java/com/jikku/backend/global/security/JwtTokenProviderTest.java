@@ -1,5 +1,6 @@
 package com.jikku.backend.global.security;
 
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,9 @@ class JwtTokenProviderTest {
         String accessToken = provider.createAccessToken(42L);
 
         assertThatThrownBy(() -> provider.getMemberIdFromRefreshToken(accessToken))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(BaseException.class)
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(GeneralErrorCode.INVALID_TOKEN);
     }
 
     @Test
@@ -74,7 +77,9 @@ class JwtTokenProviderTest {
 
         assertThat(provider.checkAccessToken(forged)).isEqualTo(AccessTokenStatus.INVALID);
         assertThatThrownBy(() -> provider.getMemberIdFromRefreshToken(forged))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(BaseException.class)
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(GeneralErrorCode.INVALID_TOKEN);
     }
 
     @Test
@@ -84,6 +89,7 @@ class JwtTokenProviderTest {
 
         assertThatThrownBy(() -> provider.getMemberIdFromRefreshToken(expired))
                 .isInstanceOf(BaseException.class)
-                .hasMessageContaining("만료");
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(GeneralErrorCode.EXPIRED_TOKEN);
     }
 }

@@ -34,6 +34,11 @@ public enum GeneralErrorCode implements BaseErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH403_1", "접근 권한이 없습니다."),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH401_4", "아이디 또는 비밀번호가 올바르지 않습니다."),
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH401_5", "헤더에 토큰이 존재하지 않습니다."),
+    // 개발용 로그인 전용. UNAUTHORIZED로 내보내면 "인증이 필요합니다"가 나가서 JWT 문제로 오해하게 된다.
+    INVALID_DEV_LOGIN_KEY(HttpStatus.UNAUTHORIZED, "AUTH401_6", "개발용 로그인 키가 올바르지 않습니다."),
+    // 서명·만료는 멀쩡한데 서버에 저장된 값과 다른 Refresh 토큰. 로그아웃했거나 다른 기기에서
+    // 다시 로그인해 밀려난 경우다. 만료(AUTH401_3)와 달리 재발급이 아니라 재로그인으로 가야 한다.
+    REVOKED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401_7", "더 이상 사용할 수 없는 토큰입니다. 다시 로그인해 주세요."),
 
     // Member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 사용자입니다."),

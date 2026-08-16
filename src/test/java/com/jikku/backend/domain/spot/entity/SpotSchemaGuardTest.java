@@ -33,7 +33,7 @@ class SpotSchemaGuardTest {
             for (String column : TEXT_COLUMNS) {
                 String dataType = jdbcTemplate.queryForObject("""
                         SELECT data_type FROM information_schema.columns
-                        WHERE table_name = ? AND column_name = ?
+                        WHERE table_schema = 'public' AND table_name = ? AND column_name = ?
                         """, String.class, table, column);
 
                 assertThat(dataType)
@@ -48,7 +48,8 @@ class SpotSchemaGuardTest {
     void noAuditColumnsAdded() {
         List<Map<String, Object>> rows = jdbcTemplate.queryForList("""
                 SELECT table_name, column_name FROM information_schema.columns
-                WHERE table_name IN ('spot', 'festival') AND column_name IN ('created_at', 'updated_at')
+                WHERE table_schema = 'public' AND table_name IN ('spot', 'festival')
+                  AND column_name IN ('created_at', 'updated_at')
                 """);
 
         assertThat(rows).isEmpty();

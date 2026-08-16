@@ -35,6 +35,10 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
 
+    // 외부 API 호출(카카오). Boot 4는 스타터가 잘게 쪼개져 있어 webmvc 스타터만으론
+    // RestClient.Builder 빈이 자동 등록되지 않는다 (없으면 기동 시 주입 실패)
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
+
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'

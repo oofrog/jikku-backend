@@ -21,9 +21,5 @@ public record FestivalItem(
         String eventstartdate,
         String eventenddate,
         String modifiedtime
-) {
-
-    public int sigunguCd() {
-        return Integer.parseInt(lDongRegnCd + lDongSignguCd);
-    }
+) implements HasLDongCode {
 }

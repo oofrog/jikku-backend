@@ -19,10 +19,5 @@ public record SpotItem(
         String lclsSystm2,
         String lclsSystm3,
         String modifiedtime
-) {
-
-    // lDongRegnCd(51) + lDongSignguCd(720) = 51720 으로 sigungu.sigungu_cd와 그대로 맞는다
-    public int sigunguCd() {
-        return Integer.parseInt(lDongRegnCd + lDongSignguCd);
-    }
+) implements HasLDongCode {
 }

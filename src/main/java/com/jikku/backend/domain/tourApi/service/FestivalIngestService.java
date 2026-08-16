@@ -93,10 +93,8 @@ public class FestivalIngestService {
 
     // event_start_date가 NOT NULL이라 비어 있으면 배치 전체가 롤백된다. 미리 걸러내고 건별로 남긴다.
     private boolean isValid(FestivalItem item) {
-        boolean valid = StringUtils.hasText(item.contentid())
+        boolean valid = item.hasNumericCodes()
                 && StringUtils.hasText(item.title())
-                && StringUtils.hasText(item.lDongRegnCd())
-                && StringUtils.hasText(item.lDongSignguCd())
                 && StringUtils.hasText(item.eventstartdate());
 
         if (!valid) {

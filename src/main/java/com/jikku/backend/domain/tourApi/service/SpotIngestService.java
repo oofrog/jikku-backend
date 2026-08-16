@@ -87,12 +87,10 @@ public class SpotIngestService {
         return valid.size();
     }
 
-    // 필수 필드가 비면 배치 전체가 롤백되므로 미리 걸러낸다. 조용히 버리지 않도록 건별로 남긴다.
+    // 필수 필드가 비거나 코드가 숫자가 아니면 배치 전체가 롤백되므로 미리 걸러낸다.
+    // 조용히 버리지 않도록 건별로 남긴다.
     private boolean isValid(SpotItem item) {
-        boolean valid = StringUtils.hasText(item.contentid())
-                && StringUtils.hasText(item.title())
-                && StringUtils.hasText(item.lDongRegnCd())
-                && StringUtils.hasText(item.lDongSignguCd());
+        boolean valid = item.hasNumericCodes() && StringUtils.hasText(item.title());
 
         if (!valid) {
             log.warn("관광지 항목 제외 (필수 필드 누락): contentid={}, title={}",

@@ -1,5 +1,6 @@
 package com.jikku.backend.global.security;
 
+import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,15 @@ class DevLoginKeyVerifierTest {
     @DisplayName("키가 일치하면 통과한다")
     void passesWithMatchingKey() {
         assertThatCode(() -> new DevLoginKeyVerifier(KEY).verify(KEY)).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("실패 사유가 전용 코드로 나간다 (JWT 문제로 오해하지 않도록)")
+    void failsWithDedicatedErrorCode() {
+        assertThatThrownBy(() -> new DevLoginKeyVerifier(KEY).verify("wrong-key"))
+                .isInstanceOf(BaseException.class)
+                .extracting(e -> ((BaseException) e).getErrorCode())
+                .isEqualTo(GeneralErrorCode.INVALID_DEV_LOGIN_KEY);
     }
 
     @Test
