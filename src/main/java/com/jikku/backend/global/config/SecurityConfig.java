@@ -31,7 +31,8 @@ public class SecurityConfig {
     private final String[] allowUris = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/health"          // Fly 헬스체크는 토큰을 못 붙인다. 인증을 걸면 401이라 머신이 죽은 것으로 판정된다
     };
 
     @Bean

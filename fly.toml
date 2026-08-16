@@ -21,6 +21,16 @@ primary_region = "nrt"   # 도쿄. Fly 리전 중 한국에서 가장 가깝다
   auto_stop_machines = false
   min_machines_running = 1
 
+  # TCP 연결만 보면 포트가 열려 있는 한 통과라, 앱이 요청을 못 받는 상태도 정상으로 본다.
+  # 실제 응답을 확인해야 배포 실패를 제대로 잡는다.
+  # grace_period는 Spring 기동 시간(실측 19~28초)보다 넉넉히 준다.
+  [[http_service.checks]]
+    method = "GET"
+    path = "/health"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "60s"
+
 [[vm]]
   size = "shared-cpu-1x"
   memory = "1gb"   # Spring Boot + JPA + 커넥션 풀 기준. 512mb는 기동 중 OOM 위험이 있다
