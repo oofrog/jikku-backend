@@ -3,14 +3,15 @@ package com.jikku.backend.domain.mission.service;
 import com.jikku.backend.domain.mission.dto.MissionVerifyRequest;
 import com.jikku.backend.domain.mission.dto.MissionVerifyResponse;
 import com.jikku.backend.domain.mission.entity.MissionSpot;
+import com.jikku.backend.domain.mission.exception.MissionErrorCode;
 import com.jikku.backend.domain.mission.repository.MissionSpotRepository;
+import com.jikku.backend.domain.spot.entity.Spot;
+import com.jikku.backend.domain.spot.repository.SpotRepository;
 import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.jikku.backend.domain.spot.entity.Spot;
-import com.jikku.backend.domain.spot.repository.SpotRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,10 @@ public class MissionService {
                     "관광지 정보를 찾을 수 없습니다."
             ));
 
+    if (spot.getMapX() == null || spot.getMapY() == null) {
+      throw new BaseException(MissionErrorCode.MISSION_COORDINATE_NOT_FOUND);
+    }
+
     double distance = calculateDistance(
             request.userY(),
             request.userX(),
@@ -57,15 +62,15 @@ public class MissionService {
     );
 
     if (distance > ALLOWED_DISTANCE_METERS) {
-      throw new BaseException(
-              GeneralErrorCode.INVALID_INPUT_VALUE,
-              "방문 인증 가능 거리 밖입니다."
-      );
+      throw new BaseException(MissionErrorCode.MISSION_OUT_OF_RANGE);
     }
 
     missionSpot.complete();
 
-    return MissionVerifyResponse.of(missionSpot.getMissionSpotId(), true);
+    return MissionVerifyResponse.of(
+      missionSpot.getMissionSpotId(),
+      missionSpot.getIsCompleted()
+    );
   }
 
   private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
