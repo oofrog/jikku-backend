@@ -37,4 +37,14 @@ public class Badge {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
+
+  private Badge(Member member, BadgeType badgeType, String badgeNo) {
+    this.member = member;
+    this.badgeType = badgeType;
+    this.badgeNo = badgeNo;
+  }
+
+  public static Badge of(Member member, BadgeType badgeType, String badgeNo) {
+    return new Badge(member, badgeType, badgeNo);
+  }
 }

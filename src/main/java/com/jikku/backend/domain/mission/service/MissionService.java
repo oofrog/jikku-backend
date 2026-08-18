@@ -1,5 +1,6 @@
 package com.jikku.backend.domain.mission.service;
 
+import com.jikku.backend.domain.badge.service.BadgeGrantService;
 import com.jikku.backend.domain.mission.dto.MissionVerifyRequest;
 import com.jikku.backend.domain.mission.dto.MissionVerifyResponse;
 import com.jikku.backend.domain.mission.entity.MissionSpot;
@@ -20,8 +21,8 @@ public class MissionService {
   private static final double ALLOWED_DISTANCE_METERS = 1000.0;
 
   private final MissionSpotRepository missionSpotRepository;
-
   private final SpotRepository spotRepository;
+  private final BadgeGrantService badgeGrantService;
 
   @Transactional
   public MissionVerifyResponse verifyMission(
@@ -30,35 +31,35 @@ public class MissionService {
     MissionVerifyRequest request
   ) {
     MissionSpot missionSpot = missionSpotRepository.findByMissionSpotIdAndMemberId(missionSpotId, memberId)
-            .orElseThrow(() -> new BaseException(
-                    GeneralErrorCode.ENTITY_NOT_FOUND,
-                    "존재하지 않는 미션 관광지입니다."
-            ));
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "존재하지 않는 미션 관광지입니다."
+      ));
 
     if (Boolean.TRUE.equals(missionSpot.getIsCompleted())) {
       throw new BaseException(
-              GeneralErrorCode.DUPLICATE_RESOURCE,
-              "이미 방문 인증한 미션입니다."
+        GeneralErrorCode.DUPLICATE_RESOURCE,
+        "이미 방문 인증한 미션입니다."
       );
     }
 
     Long contentId = missionSpot.getContentId();
 
     Spot spot = spotRepository.findById(contentId)
-            .orElseThrow(() -> new BaseException(
-                    GeneralErrorCode.ENTITY_NOT_FOUND,
-                    "관광지 정보를 찾을 수 없습니다."
-            ));
+      .orElseThrow(() -> new BaseException(
+        GeneralErrorCode.ENTITY_NOT_FOUND,
+        "관광지 정보를 찾을 수 없습니다."
+      ));
 
     if (spot.getMapX() == null || spot.getMapY() == null) {
       throw new BaseException(MissionErrorCode.MISSION_COORDINATE_NOT_FOUND);
     }
 
     double distance = calculateDistance(
-            request.userY(),
-            request.userX(),
-            spot.getMapY().doubleValue(),
-            spot.getMapX().doubleValue()
+      request.userY(),
+      request.userX(),
+      spot.getMapY().doubleValue(),
+      spot.getMapX().doubleValue()
     );
 
     if (distance > ALLOWED_DISTANCE_METERS) {
@@ -66,6 +67,7 @@ public class MissionService {
     }
 
     missionSpot.complete();
+    badgeGrantService.grantRegionBadgeIfEligible(memberId, missionSpot.getSigunguCd());
 
     return MissionVerifyResponse.of(
       missionSpot.getMissionSpotId(),
