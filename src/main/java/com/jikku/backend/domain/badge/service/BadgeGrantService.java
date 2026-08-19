@@ -12,6 +12,7 @@ import com.jikku.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,12 @@ public class BadgeGrantService {
       return;
     }
 
-    String badgeNo = RegionBadge.fromSigunguCd(sigunguCd).getBadgeNo();
+    Optional<RegionBadge> regionBadge = RegionBadge.fromSigunguCd(sigunguCd);
+    if (regionBadge.isEmpty()) {
+      return;
+    }
+
+    String badgeNo = regionBadge.get().getBadgeNo();
     grantIfAbsent(memberId, BadgeType.REGION, badgeNo);
   }
 

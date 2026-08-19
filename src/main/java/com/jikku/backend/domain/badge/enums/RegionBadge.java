@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.badge.enums;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public enum RegionBadge {
   CHUNCHEON(32010, "R001"),
@@ -34,10 +35,9 @@ public enum RegionBadge {
     return badgeNo;
   }
 
-  public static RegionBadge fromSigunguCd(Integer sigunguCd) {
+  public static Optional<RegionBadge> fromSigunguCd(Integer sigunguCd) {
     return Arrays.stream(values())
       .filter(regionBadge -> regionBadge.sigunguCd.equals(sigunguCd))
-      .findFirst()
-      .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 시군구 코드입니다: " + sigunguCd));
+      .findFirst();
   }
 }
