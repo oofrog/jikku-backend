@@ -2,8 +2,8 @@ package com.jikku.backend.domain.member.service;
 
 import com.jikku.backend.domain.member.dto.MemberResponse;
 import com.jikku.backend.domain.member.entity.Member;
+import com.jikku.backend.domain.member.exception.MemberErrorCode;
 import com.jikku.backend.domain.member.repository.MemberRepository;
-import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberResponse getMyPage(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND));
+          .orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
         return MemberResponse.from(member);
     }
 }

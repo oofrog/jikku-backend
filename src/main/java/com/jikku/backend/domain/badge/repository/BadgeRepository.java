@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
 
   List<Badge> findAllByMember_MemberIdOrderByBadgeId(Long memberId);
+
+  boolean existsByMember_MemberIdAndBadgeNo(Long memberId, String badgeNo);
 }
