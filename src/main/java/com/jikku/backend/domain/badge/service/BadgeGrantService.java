@@ -7,7 +7,7 @@ import com.jikku.backend.domain.badge.repository.BadgeRepository;
 import com.jikku.backend.domain.member.entity.Member;
 import com.jikku.backend.domain.member.repository.MemberRepository;
 import com.jikku.backend.domain.mission.repository.MissionSpotRepository;
-import com.jikku.backend.global.apiPayload.code.GeneralErrorCode;
+import com.jikku.backend.domain.member.exception.MemberErrorCode;
 import com.jikku.backend.global.exception.BaseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,10 +48,7 @@ public class BadgeGrantService {
     }
 
     Member member = memberRepository.findById(memberId)
-      .orElseThrow(() -> new BaseException(
-        GeneralErrorCode.ENTITY_NOT_FOUND,
-        "존재하지 않는 사용자입니다."
-      ));
+      .orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
     badgeRepository.save(Badge.of(member, badgeType, badgeNo));
   }
