@@ -1,4 +1,7 @@
 # 배포용(Fly.io). SPRING_PROFILES_ACTIVE=prod로 켠다.
+server:
+  forward-headers-strategy: framework
+
 spring:
   jpa:
     # 쿼리 로그를 끈다. 켜두면 Fly 로그가 SQL로 도배돼서 정작 기동 실패 원인을 못 찾는다.
