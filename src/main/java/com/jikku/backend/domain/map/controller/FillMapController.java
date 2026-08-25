@@ -14,6 +14,7 @@ import com.jikku.backend.domain.map.service.EmdFillService;
 import com.jikku.backend.domain.map.service.MapStickerService;
 import com.jikku.backend.domain.map.service.MapTravelPostService;
 import com.jikku.backend.domain.map.service.SigunguFillService;
+import com.jikku.backend.domain.map.dto.SigunguFillMapListResponse;
 import com.jikku.backend.global.apiPayload.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class FillMapController {
   private final MapTravelPostService mapTravelPostService;
 
   @GetMapping
-  public ApiResponse<FillMapListResponse<SigunguFillResponse>> getSigunguFillMap(
+  public ApiResponse<SigunguFillMapListResponse> getSigunguFillMap(
     @AuthenticationPrincipal Long memberId
   ) {
     return ApiResponse.onSuccess(sigunguFillService.getSigunguFillMap(memberId));
