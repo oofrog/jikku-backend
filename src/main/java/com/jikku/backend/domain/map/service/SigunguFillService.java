@@ -6,7 +6,7 @@ import com.jikku.backend.domain.map.entity.FillMap;
 import com.jikku.backend.domain.map.enums.FillType;
 import com.jikku.backend.domain.map.enums.MapType;
 import com.jikku.backend.domain.map.repository.FillMapRepository;
-import com.jikku.backend.domain.map.dto.FillMapListResponse;
+import com.jikku.backend.domain.map.dto.SigunguFillMapListResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,14 @@ public class SigunguFillService {
   private final SigunguRepository sigunguRepository;
 
   @Transactional(readOnly = true)
-  public FillMapListResponse<SigunguFillResponse> getSigunguFillMap(Long memberId) {
-    return FillMapListResponse.from(
-      fillMapRepository.findByMemberIdAndMapType(memberId, MapType.SIGUNGU)
-        .stream()
-        .map(SigunguFillResponse::from)
-        .toList()
-    );
+  public SigunguFillMapListResponse getSigunguFillMap(Long memberId) {
+    List<SigunguFillResponse> content = fillMapRepository
+      .findByMemberIdAndMapType(memberId, MapType.SIGUNGU)
+      .stream()
+      .map(SigunguFillResponse::from)
+      .toList();
+
+    return SigunguFillMapListResponse.from(content);
   }
 
   @Transactional
