@@ -41,6 +41,14 @@ public class MissionSpot {
   @Column(nullable = false)
   private Long contentId;
 
+  public static MissionSpot of(Long memberId, Integer sigunguCd, Long contentId) {
+    MissionSpot missionSpot = new MissionSpot();
+    missionSpot.memberId = memberId;
+    missionSpot.sigunguCd = sigunguCd;
+    missionSpot.contentId = contentId;
+    return missionSpot;
+  }
+
   public void complete() {
     this.isCompleted = true;
   }

@@ -21,6 +21,19 @@ public interface SpotRepository extends JpaRepository<Spot, Long> {
   @Query("SELECT s.contentId FROM Spot s WHERE s.firstImage IS NOT NULL ORDER BY s.contentId")
   List<Long> findContentIdsWithImage();
 
+  /**
+   * 미션 후보. 대표 이미지가 없으면 카드가 비어 보이므로 후보에서 뺀다.
+   * 뽑기는 자바에서 하므로 id만 가져온다(시군구당 29~100건).
+   */
+  @Query("""
+      SELECT s.contentId
+      FROM Spot s
+      WHERE s.sigungu.sigunguCd = :sigunguCd
+        AND s.firstImage IS NOT NULL
+      ORDER BY s.contentId
+      """)
+  List<Long> findContentIdsWithImageBySigungu(@Param("sigunguCd") Integer sigunguCd);
+
   @Query("SELECT s FROM Spot s JOIN FETCH s.sigungu WHERE s.contentId IN :contentIds")
   List<Spot> findAllWithSigungu(@Param("contentIds") Collection<Long> contentIds);
 
