@@ -126,7 +126,7 @@ class MissionServiceTest {
   }
 
   @Test
-  @DisplayName("없는 시군구 코드면 MISSION_006")
+  @DisplayName("없는 시군구 코드면 MISSION404_4")
   void unknownSigunguThrows() {
     given(sigunguRepository.existsById(99999)).willReturn(false);
 

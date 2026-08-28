@@ -23,7 +23,7 @@ public class MissionController {
 
   @Operation(summary = "시군구별 미션 관광지 조회",
     description = "그 회원이 이 시군구를 처음 조회하면 대표 이미지가 있는 관광지 20개를 무작위로 뽑아 고정한다. "
-      + "이후에는 언제 조회해도 같은 20개를 준다. 없는 시군구 코드면 MISSION_006.")
+      + "이후에는 언제 조회해도 같은 20개를 준다. 없는 시군구 코드면 MISSION404_4.")
   @GetMapping("/{sigunguCd}")
   public ApiResponse<MissionSpotListResponse> getMissions(
     @AuthenticationPrincipal Long memberId,

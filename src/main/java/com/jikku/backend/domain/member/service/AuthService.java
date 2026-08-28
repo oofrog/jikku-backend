@@ -112,7 +112,7 @@ public class AuthService {
 
         // 서명이 유효해도 탈퇴 등으로 회원이 사라졌을 수 있다
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         if (!tokenHasher.hash(refreshToken).equals(member.getRefreshToken())) {
             throw new BaseException(GeneralErrorCode.REVOKED_TOKEN);
@@ -125,7 +125,7 @@ public class AuthService {
     @Transactional
     public void logout(Long memberId) {
         memberRepository.findById(memberId)
-                .orElseThrow(() -> new BaseException(GeneralErrorCode.MEMBER_NOT_FOUND))
+                .orElseThrow(() -> new BaseException(MemberErrorCode.MEMBER_NOT_FOUND))
                 .clearRefreshToken();
     }
 
