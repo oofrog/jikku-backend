@@ -41,7 +41,6 @@ public enum GeneralErrorCode implements BaseErrorCode {
     REVOKED_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH401_7", "더 이상 사용할 수 없는 토큰입니다. 다시 로그인해 주세요."),
 
     // Member
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404_1", "존재하지 않는 사용자입니다."),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEMBER409_1", "이미 사용중인 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "MEMBER409_2", "이미 사용중인 닉네임입니다."),
 

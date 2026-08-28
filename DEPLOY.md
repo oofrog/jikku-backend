@@ -47,12 +47,23 @@ fly secrets set \
 
 **`CORS_ALLOWED_ORIGINS`는 배포 환경에서 특히 주의한다.** 로컬에서는 값이 없어도 `localhost:3000`·`5173`이
 기본 허용이지만, Fly에 이 변수를 안 넣으면 그 기본값이 그대로 쓰여서 나중에 프론트를 배포했을 때 막힌다.
-반대로 지금처럼 **프론트는 로컬에서 돌리고 백엔드만 배포한 연동 단계**에서는, 브라우저가 보내는 오리진이
-`http://localhost:3000`이므로 Fly 시크릿에도 localhost가 들어 있어야 한다. 프론트 배포 주소가 정해지면
-그 주소를 추가하고, 연동이 끝나면 localhost를 빼면 된다.
+반대로 **프론트를 로컬에서 돌리고 백엔드만 배포해 연동하는 단계**에서는, 브라우저가 보내는 오리진이
+`http://localhost:3000`이므로 Fly 시크릿에도 localhost가 들어 있어야 한다.
+
+`fly secrets set`은 append가 아니라 **통째로 덮어쓰기**다. 하나만 추가하려 해도 유지할 오리진을 전부 나열해야 한다.
+2026-08-28 기준 현재 값:
 
 ```bash
-fly secrets set CORS_ALLOWED_ORIGINS='https://프론트배포주소'   # 프론트 배포 후
+fly secrets set CORS_ALLOWED_ORIGINS='https://ji-kku-frontend-seven.vercel.app,http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173'
+```
+
+끝 슬래시를 붙이면 안 된다(`https://ji-kku-frontend-seven.vercel.app/` ✗). Spring이 Origin 헤더와 문자열을 그대로 비교한다.
+적용 확인은 대시보드의 digest(값의 해시라 편집 불가)가 아니라 preflight를 직접 쏴서 한다:
+
+```bash
+curl -i -X OPTIONS https://jikku-backend.fly.dev/health \
+  -H "Origin: https://ji-kku-frontend-seven.vercel.app" \
+  -H "Access-Control-Request-Method: GET"
 ```
 
 ### 3. GitHub에 배포 토큰 등록
