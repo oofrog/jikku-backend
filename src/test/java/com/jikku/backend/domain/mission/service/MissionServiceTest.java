@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -54,36 +55,53 @@ class MissionServiceTest {
   MissionService missionService;
 
   @Test
-  @DisplayName("이미 뽑아둔 미션이 있으면 새로 적재하지 않는다")
-  void existingMissionsAreReused() {
+  @DisplayName("이미 뽑아둔 미션이 있으면 새로 적재하지 않고, 인증한 미션은 목록에서 빠진다")
+  void existingMissionsAreReusedWithoutCompletedOnes() {
     given(sigunguRepository.existsById(SIGUNGU_CD)).willReturn(true);
-    given(missionSpotRepository.findByMemberIdAndSigunguCdOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
-      .willReturn(List.of(missionSpot(10L, 100L, true), missionSpot(11L, 101L, false)));
+    given(missionSpotRepository.existsByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(true);
+    given(missionSpotRepository.findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
+      .willReturn(List.of(missionSpot(11L, 101L)));
+    given(missionSpotRepository.countCompletedByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(1L);
     given(spotRepository.findAllById(anyCollection()))
-      .willReturn(List.of(spot(100L, "오색약수"), spot(101L, "설피마을")));
+      .willReturn(List.of(spot(101L, "설피마을")));
 
     MissionSpotListResponse response = missionService.getMissions(MEMBER_ID, SIGUNGU_CD);
 
     verify(missionAssignService, never()).assign(any(), any());
-    assertThat(response.content()).hasSize(2);
+    assertThat(response.content()).hasSize(1);
     assertThat(response.completedCount()).isEqualTo(1);
-    assertThat(response.content().get(0).title()).isEqualTo("오색약수");
-    assertThat(response.content().get(0).isCompleted()).isTrue();
+    assertThat(response.content().get(0).title()).isEqualTo("설피마을");
+  }
+
+  @Test
+  @DisplayName("전부 인증한 시군구를 다시 조회해도 미션을 새로 적재하지 않는다")
+  void allCompletedDoesNotReassign() {
+    given(sigunguRepository.existsById(SIGUNGU_CD)).willReturn(true);
+    given(missionSpotRepository.existsByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(true);
+    given(missionSpotRepository.findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
+      .willReturn(List.of());
+    given(missionSpotRepository.countCompletedByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(20L);
+
+    MissionSpotListResponse response = missionService.getMissions(MEMBER_ID, SIGUNGU_CD);
+
+    verify(missionAssignService, never()).assign(any(), any());
+    assertThat(response.content()).isEmpty();
+    assertThat(response.completedCount()).isEqualTo(20);
   }
 
   @Test
   @DisplayName("첫 조회면 적재한 미션을 그대로 응답한다")
   void firstCallAssignsMissions() {
     given(sigunguRepository.existsById(SIGUNGU_CD)).willReturn(true);
-    given(missionSpotRepository.findByMemberIdAndSigunguCdOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
-      .willReturn(List.of());
-    given(missionAssignService.assign(MEMBER_ID, SIGUNGU_CD))
-      .willReturn(List.of(missionSpot(10L, 100L, false)));
+    given(missionSpotRepository.existsByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(false);
+    given(missionSpotRepository.findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
+      .willReturn(List.of(missionSpot(10L, 100L)));
     given(spotRepository.findAllById(anyCollection()))
       .willReturn(List.of(spot(100L, "오색약수")));
 
     MissionSpotListResponse response = missionService.getMissions(MEMBER_ID, SIGUNGU_CD);
 
+    verify(missionAssignService).assign(MEMBER_ID, SIGUNGU_CD);
     assertThat(response.content()).hasSize(1);
     assertThat(response.completedCount()).isZero();
     assertThat(response.content().get(0).missionSpotId()).isEqualTo(10L);
@@ -93,11 +111,11 @@ class MissionServiceTest {
   @DisplayName("동시 요청으로 적재가 유니크 제약에 걸리면 먼저 들어간 미션을 읽어 응답한다")
   void concurrentAssignFallsBackToReread() {
     given(sigunguRepository.existsById(SIGUNGU_CD)).willReturn(true);
-    given(missionSpotRepository.findByMemberIdAndSigunguCdOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
-      .willReturn(List.of())
-      .willReturn(List.of(missionSpot(20L, 200L, false)));
-    given(missionAssignService.assign(MEMBER_ID, SIGUNGU_CD))
-      .willThrow(new DataIntegrityViolationException("duplicate key"));
+    given(missionSpotRepository.existsByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(false);
+    willThrow(new DataIntegrityViolationException("duplicate key"))
+      .given(missionAssignService).assign(MEMBER_ID, SIGUNGU_CD);
+    given(missionSpotRepository.findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
+      .willReturn(List.of(missionSpot(20L, 200L)));
     given(spotRepository.findAllById(anyCollection()))
       .willReturn(List.of(spot(200L, "청평사")));
 
@@ -120,12 +138,9 @@ class MissionServiceTest {
     verify(missionAssignService, never()).assign(any(), any());
   }
 
-  private MissionSpot missionSpot(Long missionSpotId, Long contentId, boolean completed) {
+  private MissionSpot missionSpot(Long missionSpotId, Long contentId) {
     MissionSpot missionSpot = MissionSpot.of(MEMBER_ID, SIGUNGU_CD, contentId);
     ReflectionTestUtils.setField(missionSpot, "missionSpotId", missionSpotId);
-    if (completed) {
-      missionSpot.complete();
-    }
     return missionSpot;
   }
 

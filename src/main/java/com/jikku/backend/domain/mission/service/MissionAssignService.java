@@ -29,13 +29,13 @@ public class MissionAssignService {
    * 후보가 가장 적은 횡성군도 이미지 있는 관광지가 29곳이라 20개는 채워진다.
    */
   @Transactional
-  public List<MissionSpot> assign(Long memberId, Integer sigunguCd) {
+  public void assign(Long memberId, Integer sigunguCd) {
     List<Long> candidates = new ArrayList<>(spotRepository.findContentIdsWithImageBySigungu(sigunguCd));
     Collections.shuffle(candidates);
 
     List<Long> picked = candidates.subList(0, Math.min(MISSION_COUNT, candidates.size()));
 
-    return missionSpotRepository.saveAll(
+    missionSpotRepository.saveAll(
       picked.stream()
         .map(contentId -> MissionSpot.of(memberId, sigunguCd, contentId))
         .toList()

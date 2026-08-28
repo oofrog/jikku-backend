@@ -34,7 +34,8 @@ public class MissionService {
   private final BadgeGrantService badgeGrantService;
 
   /**
-   * 시군구별 미션 목록. 그 회원이 이 시군구를 처음 열면 이 조회가 적재를 겸한다.
+   * 시군구별 미션 목록. 이미 인증한 미션은 빼고 남은 것만 내려준다.
+   * 그 회원이 이 시군구를 처음 열면 이 조회가 적재를 겸한다.
    * 트랜잭션을 열지 않는 이유는 적재 실패(동시 요청) 후 재조회를 같은 트랜잭션에서 할 수 없어서다.
    */
   public MissionSpotListResponse getMissions(Long memberId, Integer sigunguCd) {
@@ -42,12 +43,13 @@ public class MissionService {
       throw new BaseException(MissionErrorCode.MISSION_SIGUNGU_NOT_FOUND);
     }
 
-    List<MissionSpot> missionSpots =
-      missionSpotRepository.findByMemberIdAndSigunguCdOrderByMissionSpotId(memberId, sigunguCd);
-
-    if (missionSpots.isEmpty()) {
-      missionSpots = assignOrReread(memberId, sigunguCd);
+    // 남은 미션 목록이 아니라 존재 여부로 판정한다. 목록으로 보면 20개를 다 인증한 회원에게 미션이 새로 적재된다.
+    if (!missionSpotRepository.existsByMemberIdAndSigunguCd(memberId, sigunguCd)) {
+      assign(memberId, sigunguCd);
     }
+
+    List<MissionSpot> missionSpots = missionSpotRepository
+      .findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(memberId, sigunguCd);
 
     Map<Long, Spot> spotsById = spotRepository
       .findAllById(missionSpots.stream().map(MissionSpot::getContentId).toList())
@@ -59,19 +61,17 @@ public class MissionService {
       .map(missionSpot -> MissionSpotResponse.of(missionSpot, spotsById.get(missionSpot.getContentId())))
       .toList();
 
-    long completedCount = missionSpots.stream()
-      .filter(missionSpot -> Boolean.TRUE.equals(missionSpot.getIsCompleted()))
-      .count();
-
-    return MissionSpotListResponse.of(completedCount, content);
+    return MissionSpotListResponse.of(
+      missionSpotRepository.countCompletedByMemberIdAndSigunguCd(memberId, sigunguCd),
+      content
+    );
   }
 
-  private List<MissionSpot> assignOrReread(Long memberId, Integer sigunguCd) {
+  private void assign(Long memberId, Integer sigunguCd) {
     try {
-      return missionAssignService.assign(memberId, sigunguCd);
+      missionAssignService.assign(memberId, sigunguCd);
     } catch (DataIntegrityViolationException e) {
-      // (member_id, content_id) 유니크에 걸렸다 = 동시 요청이 먼저 적재했다. 그쪽이 넣은 20개를 그대로 보여준다.
-      return missionSpotRepository.findByMemberIdAndSigunguCdOrderByMissionSpotId(memberId, sigunguCd);
+      // (member_id, content_id) 유니크에 걸렸다 = 동시 요청이 먼저 적재했다. 그쪽이 넣은 20개를 아래에서 그대로 읽는다.
     }
   }
 

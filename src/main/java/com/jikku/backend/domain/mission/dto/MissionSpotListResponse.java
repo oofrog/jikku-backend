@@ -3,7 +3,8 @@ package com.jikku.backend.domain.mission.dto;
 import java.util.List;
 
 /**
- * 전체 개수는 content 길이와 같아 따로 내리지 않는다. 진행률은 completedCount / content.length.
+ * content에는 아직 인증하지 않은 미션만 담긴다.
+ * 따라서 그 시군구의 전체 미션 수는 completedCount + content.length이고, 진행률도 이 분모로 계산한다.
  */
 public record MissionSpotListResponse(
   long completedCount,
