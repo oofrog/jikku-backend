@@ -2,6 +2,7 @@ package com.jikku.backend.domain.mission.dto;
 
 import com.jikku.backend.domain.mission.entity.MissionSpot;
 import com.jikku.backend.domain.spot.entity.Spot;
+import com.jikku.backend.global.util.Overviews;
 import java.math.BigDecimal;
 import lombok.Builder;
 
@@ -17,6 +18,7 @@ public record MissionSpotResponse(
   Long contentId,
   String title,
   String firstImage,
+  String overview,
   BigDecimal mapX,
   BigDecimal mapY
 ) {
@@ -28,6 +30,7 @@ public record MissionSpotResponse(
       .contentId(spot.getContentId())
       .title(spot.getTitle())
       .firstImage(spot.getFirstImage())
+      .overview(Overviews.summarize(spot.getOverview()))
       .mapX(spot.getMapX())
       .mapY(spot.getMapY())
       .build();

@@ -1,16 +1,19 @@
 package com.jikku.backend.domain.mission.service;
 
 import com.jikku.backend.domain.badge.service.BadgeGrantService;
+import com.jikku.backend.domain.mission.dto.MissionSpotDetailResponse;
 import com.jikku.backend.domain.mission.dto.MissionSpotListResponse;
 import com.jikku.backend.domain.mission.entity.MissionSpot;
 import com.jikku.backend.domain.mission.exception.MissionErrorCode;
 import com.jikku.backend.domain.mission.repository.MissionSpotRepository;
+import com.jikku.backend.domain.region.entity.Sigungu;
 import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.domain.spot.entity.Spot;
 import com.jikku.backend.domain.spot.repository.SpotRepository;
 import com.jikku.backend.global.exception.BaseException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -138,6 +141,58 @@ class MissionServiceTest {
     verify(missionAssignService, never()).assign(any(), any());
   }
 
+  @Test
+  @DisplayName("목록의 overview는 태그를 걷어내고 30자로 자른다")
+  void overviewIsTruncatedForList() {
+    given(sigunguRepository.existsById(SIGUNGU_CD)).willReturn(true);
+    given(missionSpotRepository.existsByMemberIdAndSigunguCd(MEMBER_ID, SIGUNGU_CD)).willReturn(true);
+    given(missionSpotRepository.findByMemberIdAndSigunguCdAndIsCompletedFalseOrderByMissionSpotId(MEMBER_ID, SIGUNGU_CD))
+      .willReturn(List.of(missionSpot(30L, 300L)));
+
+    Spot spot = spot(300L, "남이섬");
+    ReflectionTestUtils.setField(spot, "overview", "가평에 있는 섬이다.<br>배를 타고 들어간다.<br />사계절 모두 아름답다.");
+    given(spotRepository.findAllById(anyCollection())).willReturn(List.of(spot));
+
+    MissionSpotListResponse response = missionService.getMissions(MEMBER_ID, SIGUNGU_CD);
+
+    assertThat(response.content().get(0).overview())
+      .isEqualTo("가평에 있는 섬이다. 배를 타고 들어간다. 사계절 모두…");
+  }
+
+  @Test
+  @DisplayName("미션 세부 조회는 인증 상태와 잘리지 않은 overview를 함께 준다")
+  void missionSpotDetailIncludesVerificationState() {
+    String overview = "가평에 있는 섬이다.<br>배를 타고 들어간다.<br />사계절 모두 아름답다.";
+
+    Spot spot = spot(300L, "남이섬");
+    ReflectionTestUtils.setField(spot, "overview", overview);
+    ReflectionTestUtils.setField(spot, "addr1", "강원특별자치도 춘천시 남산면");
+    ReflectionTestUtils.setField(spot, "sigungu", sigungu());
+
+    given(missionSpotRepository.findByMissionSpotIdAndMemberId(30L, MEMBER_ID))
+      .willReturn(Optional.of(missionSpot(30L, 300L)));
+    given(spotRepository.findWithSigungu(300L)).willReturn(Optional.of(spot));
+
+    MissionSpotDetailResponse response = missionService.getMissionSpot(MEMBER_ID, 30L);
+
+    assertThat(response.missionSpotId()).isEqualTo(30L);
+    assertThat(response.isCompleted()).isFalse();
+    assertThat(response.overview()).isEqualTo(overview);
+    assertThat(response.sigunguNm()).isEqualTo("춘천시");
+  }
+
+  @Test
+  @DisplayName("내 미션이 아니면 세부 조회는 MISSION404_1")
+  void missionSpotDetailOfOthersThrows() {
+    given(missionSpotRepository.findByMissionSpotIdAndMemberId(30L, MEMBER_ID))
+      .willReturn(Optional.empty());
+
+    assertThatThrownBy(() -> missionService.getMissionSpot(MEMBER_ID, 30L))
+      .isInstanceOf(BaseException.class)
+      .extracting(e -> ((BaseException) e).getErrorCode())
+      .isEqualTo(MissionErrorCode.MISSION_SPOT_NOT_FOUND);
+  }
+
   private MissionSpot missionSpot(Long missionSpotId, Long contentId) {
     MissionSpot missionSpot = MissionSpot.of(MEMBER_ID, SIGUNGU_CD, contentId);
     ReflectionTestUtils.setField(missionSpot, "missionSpotId", missionSpotId);
@@ -153,5 +208,12 @@ class MissionServiceTest {
     ReflectionTestUtils.setField(spot, "mapX", new BigDecimal("128.456000000000"));
     ReflectionTestUtils.setField(spot, "mapY", new BigDecimal("37.123000000000"));
     return spot;
+  }
+
+  private Sigungu sigungu() {
+    Sigungu sigungu = BeanUtils.instantiateClass(Sigungu.class);
+    ReflectionTestUtils.setField(sigungu, "sigunguCd", SIGUNGU_CD);
+    ReflectionTestUtils.setField(sigungu, "sigunguNm", "춘천시");
+    return sigungu;
   }
 }
