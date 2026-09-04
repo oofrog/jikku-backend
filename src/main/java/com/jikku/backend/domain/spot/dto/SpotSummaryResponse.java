@@ -1,12 +1,14 @@
 package com.jikku.backend.domain.spot.dto;
 
 import com.jikku.backend.domain.spot.entity.Spot;
+import com.jikku.backend.global.util.Overviews;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 
 /**
  * 오늘의 추천 카드. 지도에 찍을 좌표와 설명까지 함께 내려 카드에서 바로 보여줄 수 있게 한다.
+ * overview는 카드에 들어갈 분량만 잘라 내린다. 원문 전체는 세부 조회에서 받는다.
  * 후보를 firstImage 있는 것으로 한정하므로 이 응답의 firstImage는 항상 존재한다.
  */
 @Builder
@@ -26,7 +28,7 @@ public record SpotSummaryResponse(
                 .contentId(spot.getContentId())
                 .title(spot.getTitle())
                 .firstImage(spot.getFirstImage())
-                .overview(spot.getOverview())
+                .overview(Overviews.summarize(spot.getOverview()))
                 .sigunguCd(spot.getSigungu().getSigunguCd())
                 .sigunguNm(spot.getSigungu().getSigunguNm())
                 .mapX(spot.getMapX())
