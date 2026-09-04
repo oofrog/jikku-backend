@@ -1,5 +1,6 @@
 package com.jikku.backend.domain.mission.controller;
 
+import com.jikku.backend.domain.mission.dto.MissionSpotDetailResponse;
 import com.jikku.backend.domain.mission.dto.MissionSpotListResponse;
 import com.jikku.backend.domain.mission.dto.MissionVerifyRequest;
 import com.jikku.backend.domain.mission.dto.MissionVerifyResponse;
@@ -31,6 +32,18 @@ public class MissionController {
     @PathVariable Integer sigunguCd
   ) {
     return ApiResponse.onSuccess(missionService.getMissions(memberId, sigunguCd));
+  }
+
+  @Operation(summary = "미션 관광지 세부 조회",
+    description = "관광지 세부 조회와 같은 내용에 missionSpotId·isCompleted를 더해, 이 화면에서 바로 방문 인증을 할 수 있게 한다. "
+      + "내 미션이 아니거나 없는 미션이면 MISSION404_1, 관광지 정보가 없으면 MISSION404_2.")
+  @GetMapping("/detail/{missionSpotId}")
+  public ApiResponse<MissionSpotDetailResponse> getMissionSpot(
+    @AuthenticationPrincipal Long memberId,
+    @Parameter(description = "미션 관광지 ID", example = "1")
+    @PathVariable Long missionSpotId
+  ) {
+    return ApiResponse.onSuccess(missionService.getMissionSpot(memberId, missionSpotId));
   }
 
   @PatchMapping("/verify/{missionSpotId}")

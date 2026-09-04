@@ -1,6 +1,7 @@
 package com.jikku.backend.domain.mission.service;
 
 import com.jikku.backend.domain.badge.service.BadgeGrantService;
+import com.jikku.backend.domain.mission.dto.MissionSpotDetailResponse;
 import com.jikku.backend.domain.mission.dto.MissionSpotListResponse;
 import com.jikku.backend.domain.mission.dto.MissionSpotResponse;
 import com.jikku.backend.domain.mission.dto.MissionVerifyRequest;
@@ -73,6 +74,21 @@ public class MissionService {
     } catch (DataIntegrityViolationException e) {
       // (member_id, content_id) 유니크에 걸렸다 = 동시 요청이 먼저 적재했다. 그쪽이 넣은 20개를 아래에서 그대로 읽는다.
     }
+  }
+
+  /**
+   * 미션 관광지 세부. 조회 키를 contentId가 아니라 missionSpotId로 둔 이유는
+   * 남의 미션을 못 보게 하면서 인증 상태(isCompleted)까지 같이 내리기 위해서다.
+   */
+  @Transactional(readOnly = true)
+  public MissionSpotDetailResponse getMissionSpot(Long memberId, Long missionSpotId) {
+    MissionSpot missionSpot = missionSpotRepository.findByMissionSpotIdAndMemberId(missionSpotId, memberId)
+      .orElseThrow(() -> new BaseException(MissionErrorCode.MISSION_SPOT_NOT_FOUND));
+
+    Spot spot = spotRepository.findWithSigungu(missionSpot.getContentId())
+      .orElseThrow(() -> new BaseException(MissionErrorCode.MISSION_TARGET_SPOT_NOT_FOUND));
+
+    return MissionSpotDetailResponse.of(missionSpot, spot);
   }
 
   @Transactional
