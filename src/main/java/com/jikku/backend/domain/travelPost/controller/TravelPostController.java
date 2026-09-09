@@ -53,9 +53,9 @@ public class TravelPostController {
 
   @GetMapping
   public ApiResponse<FillMapListResponse<TravelPostSigunguResponse>>
-  getSigunguList() {
+  getSigunguList(@AuthenticationPrincipal Long memberId) {
     return ApiResponse.onSuccess(
-      travelPostService.getSigunguList()
+      travelPostService.getSigunguList(memberId)
     );
   }
 

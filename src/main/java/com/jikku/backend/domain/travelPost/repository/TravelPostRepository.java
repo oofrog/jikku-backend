@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.jikku.backend.domain.region.entity.Sigungu;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface TravelPostRepository
   extends JpaRepository<TravelPost, Long> {
@@ -25,5 +28,15 @@ public interface TravelPostRepository
     Long memberId,
     Integer sigunguCd,
     LocalDate logDate
+  );
+
+  @Query("""
+  select distinct tp.emd.sigungu
+  from TravelPost tp
+  where tp.memberId = :memberId
+  order by tp.emd.sigungu.sigunguNm asc
+  """)
+  List<Sigungu> findDistinctSigunguByMemberId(
+    @Param("memberId") Long memberId
   );
 }
