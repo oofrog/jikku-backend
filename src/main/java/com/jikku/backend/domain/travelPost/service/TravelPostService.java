@@ -3,7 +3,6 @@ package com.jikku.backend.domain.travelPost.service;
 import com.jikku.backend.domain.map.dto.FillMapListResponse;
 import com.jikku.backend.domain.region.entity.Emd;
 import com.jikku.backend.domain.region.repository.EmdRepository;
-import com.jikku.backend.domain.region.repository.SigunguRepository;
 import com.jikku.backend.domain.travelPost.dto.TravelPostBlockCreateRequest;
 import com.jikku.backend.domain.travelPost.dto.TravelPostCreateRequest;
 import com.jikku.backend.domain.travelPost.dto.TravelPostCreateResponse;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class TravelPostService {
 
   private final TravelPostRepository travelPostRepository;
-  private final SigunguRepository sigunguRepository;
   private final EmdRepository emdRepository;
   private final TravelPostBlockRepository travelPostBlockRepository;
 
@@ -72,9 +70,11 @@ public class TravelPostService {
     );
   }
 
-  public FillMapListResponse<TravelPostSigunguResponse> getSigunguList() {
+  public FillMapListResponse<TravelPostSigunguResponse> getSigunguList(
+    Long memberId
+  ) {
     return FillMapListResponse.from(
-      sigunguRepository.findAllByOrderBySigunguNmAsc()
+      travelPostRepository.findDistinctSigunguByMemberId(memberId)
         .stream()
         .map(TravelPostSigunguResponse::from)
         .toList()
